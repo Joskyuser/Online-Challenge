@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChallengeIQ — Inscription</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#080b14;--card:#0e1221;--border:#1e2640;--accent:#f0c93a;--accent2:#3a8ef0;--green:#4ade80;--red:#f87171;--text:#e8eaf0;--muted:#6b7280}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px 16px;overflow-x:hidden;position:relative}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:50px 50px;opacity:0.2;z-index:0;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.12;animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
+    .orb1{width:350px;height:350px;background:#3a8ef0;top:-100px;right:-100px}
+    .orb2{width:280px;height:280px;background:#f0c93a;bottom:-80px;left:-80px;animation-delay:3s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+    .wrapper{position:relative;z-index:1;width:100%;max-width:560px}
+    .logo{text-align:center;margin-bottom:22px;animation:fadeDown .6s ease both}
+    .logo h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800}
+    .logo h1 span{color:var(--accent)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:30px;animation:fadeUp .6s ease .2s both;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+    .card-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+    .card-sub{font-size:13px;color:var(--muted);margin-bottom:20px}
+    .section-label{font-size:11px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin:18px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+    .row{display:flex;gap:12px}
+    .row .field{flex:1}
+    .field{margin-bottom:13px;position:relative}
+    label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .req{color:var(--red)}
+    input,select{width:100%;padding:11px 14px;background:#131829;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s,box-shadow .2s;outline:none;appearance:none}
+    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,201,58,.1)}
+    input.valid{border-color:var(--green)}
+    input.invalid{border-color:var(--red)}
+    select option{background:#0e1221}
+    .field-hint{font-size:11px;margin-top:4px;display:none}
+    .field-hint.err{color:var(--red);display:block}
+    .field-hint.ok{color:var(--green);display:block}
+    .phone-wrap{display:flex;gap:8px}
+    .phone-prefix{min-width:80px;flex-shrink:0;background:#1a1f35;border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:14px;font-weight:700;padding:11px 10px;text-align:center;font-family:'Syne',sans-serif;letter-spacing:1px}
+    .phone-input{flex:1}
+    .category-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+    .cat-btn{padding:11px 10px;background:#131829;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;text-align:center}
+    .cat-btn:hover{border-color:var(--accent2);color:var(--text)}
+    .cat-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(240,201,58,.08)}
+    .cat-btn .icon{font-size:18px;display:block;margin-bottom:3px}
+    .sub-field{display:none}
+    .sub-field.visible{display:block}
+    .error-msg{background:#2a0e0e;border:1px solid #5a1a1a;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+    .success-msg{background:#0a2a0e;border:1px solid #1a5a1a;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:14px;display:none}
+    .btn{width:100%;padding:13px;background:var(--accent);color:#080b14;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;margin-top:6px}
+    .btn:hover{background:#ffd84d;transform:translateY(-1px)}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .login-link{text-align:center;margin-top:14px;font-size:13px;color:var(--muted)}
+    .login-link a{color:var(--accent);text-decoration:none}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:520px){.row{flex-direction:column;gap:0}.card{padding:20px 15px}}
+  </style>
+</head>
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="wrapper">
+    <div class="logo"><h1>⚡ Challenge<span>IQ</span></h1></div>
+    <div class="card">
+      <div class="card-title">Créer un compte 🚀</div>
+      <div class="card-sub">Rejoignez la communauté des challengers</div>
+      <div class="error-msg" id="err"></div>
+      <div class="success-msg" id="suc"></div>
+
+      <div class="section-label">👤 Informations personnelles</div>
+      <div class="row">
+        <div class="field"><label>Prénom <span class="req">*</span></label><input type="text" id="prenom" placeholder="Jean"/></div>
+        <div class="field"><label>Nom <span class="req">*</span></label><input type="text" id="nom" placeholder="Dupont"/></div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Date de naissance <span class="req">*</span></label>
+          <input type="date" id="datenaissance"/>
+        </div>
+        <div class="field">
+          <label>Niveau d'étude <span class="req">*</span></label>
+          <select id="niveau">
+            <option value="">-- Sélectionner --</option>
+            <optgroup label="Secondaire">
+              <option>Collège</option><option>Lycée - 2nde</option>
+              <option>Lycée - 1ère</option><option>Terminale / BAC</option>
+            </optgroup>
+            <optgroup label="Supérieur">
+              <option>Licence 1 (L1)</option><option>Licence 2 (L2)</option><option>Licence 3 (L3)</option>
+              <option>Master 1 (M1)</option><option>Master 2 (M2)</option><option>Doctorat</option><option>BTS / DUT</option>
+            </optgroup>
+            <optgroup label="Professionnel">
+              <option>Enseignant Secondaire</option><option>Enseignant Universitaire</option>
+              <option>Professionnel</option><option>Autre</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-label">🌍 Localisation & Contact</div>
+      <div class="field">
+        <label>Pays <span class="req">*</span></label>
+        <select id="pays" onchange="onPaysChange()">
+          <option value="">-- Sélectionner votre pays --</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Numéro de téléphone <span class="req">*</span></label>
+        <div class="phone-wrap">
+          <div class="phone-prefix" id="phonePrefix">--</div>
+          <input type="tel" class="phone-input" id="telephone" placeholder="Choisissez d'abord un pays" oninput="validatePhone()"/>
+        </div>
+        <div class="field-hint" id="phoneHint"></div>
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="votre@email.com" oninput="validateEmail()"/>
+        <div class="field-hint" id="emailHint"></div>
+      </div>
+
+      <div class="section-label">🔒 Sécurité</div>
+      <div class="row">
+        <div class="field">
+          <label>Mot de passe <span class="req">*</span></label>
+          <input type="password" id="pass" placeholder="Min. 8 caractères" oninput="validatePass()"/>
+          <div class="field-hint" id="passHint"></div>
+        </div>
+        <div class="field">
+          <label>Confirmer <span class="req">*</span></label>
+          <input type="password" id="pass2" placeholder="Répéter le mot de passe" oninput="validatePass2()"/>
+          <div class="field-hint" id="pass2Hint"></div>
+        </div>
+      </div>
+
+      <div class="section-label">🎓 Catégorie & Domaine</div>
+      <div class="field">
+        <label>Votre catégorie <span class="req">*</span></label>
+        <div class="category-grid">
+          <div class="cat-btn" onclick="selectCat('prof_secondaire',this)"><span class="icon">🏫</span>Prof. Secondaire</div>
+          <div class="cat-btn" onclick="selectCat('prof_universite',this)"><span class="icon">🎓</span>Prof. Université</div>
+          <div class="cat-btn" onclick="selectCat('etudiant',this)"><span class="icon">📚</span>Étudiant(e)</div>
+          <div class="cat-btn" onclick="selectCat('autre',this)"><span class="icon">💡</span>Autre</div>
+        </div>
+        <input type="hidden" id="categorie"/>
+      </div>
+      <div class="field sub-field" id="filiereField">
+        <label>Filière</label>
+        <select id="filiere">
+          <option value="">-- Sélectionner --</option>
+          <option>Informatique</option><option>Réseaux & Télécommunications</option>
+          <option>Génie Logiciel</option><option>Cybersécurité</option>
+          <option>Intelligence Artificielle</option><option>Mathématiques</option>
+          <option>Physique</option><option>Chimie</option><option>Biologie</option>
+          <option>Droit</option><option>Économie</option><option>Médecine</option>
+          <option>Lettres & Sciences Humaines</option><option>Architecture</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="field sub-field" id="matiereField">
+        <label>Matière enseignée</label>
+        <input type="text" id="matiere" placeholder="Ex: Mathématiques, Physique..."/>
+      </div>
+
+      <button class="btn" id="regBtn" onclick="register()">Créer mon compte</button>
+    </div>
+    <div class="login-link">Déjà un compte ? <a href="index.html">Se connecter</a></div>
+  </div>
+
+  <script>
+    const SUPA_URL='https://rkrihsykkijggkyahyei.supabase.co';
+    const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrcmloc3lra2lqZ2dreWFoeWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MDU5MDksImV4cCI6MjA4NzE4MTkwOX0.-gXOSJNpZSYe8catqz1SiVQtBg0P0okLTT4TIC0PdHA';
+
+    const PAYS=[
+      {nom:"Côte d'Ivoire",code:"CI",prefixe:"+225",digits:10,flag:"🇨🇮"},
+      {nom:"Sénégal",code:"SN",prefixe:"+221",digits:9,flag:"🇸🇳"},
+      {nom:"Mali",code:"ML",prefixe:"+223",digits:8,flag:"🇲🇱"},
+      {nom:"Burkina Faso",code:"BF",prefixe:"+226",digits:8,flag:"🇧🇫"},
+      {nom:"Niger",code:"NE",prefixe:"+227",digits:8,flag:"🇳🇪"},
+      {nom:"Guinée",code:"GN",prefixe:"+224",digits:9,flag:"🇬🇳"},
+      {nom:"Cameroun",code:"CM",prefixe:"+237",digits:9,flag:"🇨🇲"},
+      {nom:"Togo",code:"TG",prefixe:"+228",digits:8,flag:"🇹🇬"},
+      {nom:"Bénin",code:"BJ",prefixe:"+229",digits:8,flag:"🇧🇯"},
+      {nom:"Ghana",code:"GH",prefixe:"+233",digits:9,flag:"🇬🇭"},
+      {nom:"Nigeria",code:"NG",prefixe:"+234",digits:10,flag:"🇳🇬"},
+      {nom:"Congo (RDC)",code:"CD",prefixe:"+243",digits:9,flag:"🇨🇩"},
+      {nom:"Congo (Brazzaville)",code:"CG",prefixe:"+242",digits:9,flag:"🇨🇬"},
+      {nom:"Gabon",code:"GA",prefixe:"+241",digits:8,flag:"🇬🇦"},
+      {nom:"Madagascar",code:"MG",prefixe:"+261",digits:9,flag:"🇲🇬"},
+      {nom:"Maroc",code:"MA",prefixe:"+212",digits:9,flag:"🇲🇦"},
+      {nom:"Algérie",code:"DZ",prefixe:"+213",digits:9,flag:"🇩🇿"},
+      {nom:"Tunisie",code:"TN",prefixe:"+216",digits:8,flag:"🇹🇳"},
+      {nom:"Égypte",code:"EG",prefixe:"+20",digits:10,flag:"🇪🇬"},
+      {nom:"Kenya",code:"KE",prefixe:"+254",digits:9,flag:"🇰🇪"},
+      {nom:"Afrique du Sud",code:"ZA",prefixe:"+27",digits:9,flag:"🇿🇦"},
+      {nom:"Rwanda",code:"RW",prefixe:"+250",digits:9,flag:"🇷🇼"},
+      {nom:"Mauritanie",code:"MR",prefixe:"+222",digits:8,flag:"🇲🇷"},
+      {nom:"France",code:"FR",prefixe:"+33",digits:9,flag:"🇫🇷"},
+      {nom:"Belgique",code:"BE",prefixe:"+32",digits:9,flag:"🇧🇪"},
+      {nom:"Suisse",code:"CH",prefixe:"+41",digits:9,flag:"🇨🇭"},
+      {nom:"Canada",code:"CA",prefixe:"+1",digits:10,flag:"🇨🇦"},
+      {nom:"Luxembourg",code:"LU",prefixe:"+352",digits:9,flag:"🇱🇺"},
+      {nom:"Allemagne",code:"DE",prefixe:"+49",digits:10,flag:"🇩🇪"},
+      {nom:"Royaume-Uni",code:"GB",prefixe:"+44",digits:10,flag:"🇬🇧"},
+      {nom:"Espagne",code:"ES",prefixe:"+34",digits:9,flag:"🇪🇸"},
+      {nom:"Italie",code:"IT",prefixe:"+39",digits:10,flag:"🇮🇹"},
+      {nom:"Portugal",code:"PT",prefixe:"+351",digits:9,flag:"🇵🇹"},
+      {nom:"États-Unis",code:"US",prefixe:"+1",digits:10,flag:"🇺🇸"},
+      {nom:"Brésil",code:"BR",prefixe:"+55",digits:11,flag:"🇧🇷"},
+      {nom:"Chine",code:"CN",prefixe:"+86",digits:11,flag:"🇨🇳"},
+      {nom:"Inde",code:"IN",prefixe:"+91",digits:10,flag:"🇮🇳"},
+      {nom:"Japon",code:"JP",prefixe:"+81",digits:10,flag:"🇯🇵"},
+      {nom:"Éthiopie",code:"ET",prefixe:"+251",digits:9,flag:"🇪🇹"},
+      {nom:"Cap-Vert",code:"CV",prefixe:"+238",digits:7,flag:"🇨🇻"},
+    ].sort((a,b)=>a.nom.localeCompare(b.nom,'fr'));
+
+    const paysSelect=document.getElementById('pays');
+    PAYS.forEach(p=>{
+      const opt=document.createElement('option');
+      opt.value=p.code;
+      opt.textContent=p.flag+' '+p.nom+' ('+p.prefixe+')';
+      paysSelect.appendChild(opt);
+    });
+
+    let selectedPays=null;
+
+    function onPaysChange(){
+      const code=document.getElementById('pays').value;
+      selectedPays=PAYS.find(p=>p.code===code)||null;
+      const prefix=document.getElementById('phonePrefix');
+      const tel=document.getElementById('telephone');
+      if(selectedPays){
+        prefix.textContent=selectedPays.prefixe;
+        tel.placeholder='Ex: '+('0'.repeat(Math.min(selectedPays.digits,10)))+' ('+selectedPays.digits+' chiffres)';
+        tel.disabled=false;
+      } else {
+        prefix.textContent='--'; tel.placeholder="Choisissez d'abord un pays"; tel.disabled=true;
+      }
+      validatePhone();
+    }
+
+    function validatePhone(){
+      const tel=document.getElementById('telephone');
+      const hint=document.getElementById('phoneHint');
+      const raw=tel.value.replace(/[\s\-\.]/g,'');
+      if(!raw){tel.className='';hint.className='field-hint';return;}
+      if(!selectedPays){hint.textContent="⚠️ Sélectionnez d'abord un pays";hint.className='field-hint err';tel.className='invalid';return;}
+      const digits=raw.replace(/\D/g,'');
+      if(digits.length===selectedPays.digits){
+        tel.className='valid';hint.textContent='✅ Format valide pour '+selectedPays.nom;hint.className='field-hint ok';
+      } else {
+        tel.className='invalid';
+        hint.textContent='❌ '+selectedPays.nom+' : '+selectedPays.digits+' chiffres requis (vous avez '+digits.length+')';
+        hint.className='field-hint err';
+      }
+    }
+
+    function validateEmail(){
+      const el=document.getElementById('email');
+      const hint=document.getElementById('emailHint');
+      const v=el.value.trim();
+      if(!v){el.className='';hint.className='field-hint';return;}
+      const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      el.className=ok?'valid':'invalid';
+      hint.textContent=ok?'✅ Email valide':'❌ Format invalide (ex: nom@email.com)';
+      hint.className='field-hint '+(ok?'ok':'err');
+    }
+
+    function validatePass(){
+      const el=document.getElementById('pass');
+      const hint=document.getElementById('passHint');
+      const v=el.value;
+      if(!v){el.className='';hint.className='field-hint';return;}
+      if(v.length<8){el.className='invalid';hint.textContent='❌ Minimum 8 caractères';hint.className='field-hint err';}
+      else{el.className='valid';hint.textContent='✅ Mot de passe valide';hint.className='field-hint ok';}
+      if(document.getElementById('pass2').value) validatePass2();
+    }
+
+    function validatePass2(){
+      const el=document.getElementById('pass2');
+      const hint=document.getElementById('pass2Hint');
+      const v=el.value;
+      if(!v){el.className='';hint.className='field-hint';return;}
+      const match=v===document.getElementById('pass').value;
+      el.className=match?'valid':'invalid';
+      hint.textContent=match?'✅ Correspondent':'❌ Ne correspondent pas';
+      hint.className='field-hint '+(match?'ok':'err');
+    }
+
+    function selectCat(cat,el){
+      document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('categorie').value=cat;
+      document.getElementById('filiereField').classList.toggle('visible',cat==='etudiant');
+      document.getElementById('matiereField').classList.toggle('visible',cat==='prof_secondaire'||cat==='prof_universite');
+    }
+
+    async function supa(path,opts={}){
+      const res=await fetch(SUPA_URL+'/rest/v1/'+path,{
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+        ...opts
+      });
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.message||JSON.stringify(data));
+      return data;
+    }
+
+    async function hashPassword(p){
+      const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function register(){
+      const prenom=document.getElementById('prenom').value.trim();
+      const nom=document.getElementById('nom').value.trim();
+      const datenaissance=document.getElementById('datenaissance').value;
+      const niveau=document.getElementById('niveau').value;
+      const pays=document.getElementById('pays').value;
+      const telephone=document.getElementById('telephone').value.trim();
+      const email=document.getElementById('email').value.trim();
+      const pass=document.getElementById('pass').value;
+      const pass2=document.getElementById('pass2').value;
+      const categorie=document.getElementById('categorie').value;
+      const filiere=document.getElementById('filiere').value;
+      const matiere=document.getElementById('matiere').value.trim();
+      const err=document.getElementById('err');
+      const suc=document.getElementById('suc');
+      const btn=document.getElementById('regBtn');
+      err.style.display='none';suc.style.display='none';
+
+      if(!prenom||!nom||!datenaissance||!niveau||!pays||!telephone||!email||!pass||!categorie){
+        err.textContent='Veuillez remplir tous les champs obligatoires.';err.style.display='block';return;
+      }
+      if(pass.length<8){err.textContent='Le mot de passe doit contenir au moins 8 caractères.';err.style.display='block';return;}
+      if(pass!==pass2){err.textContent='Les mots de passe ne correspondent pas.';err.style.display='block';return;}
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Format email invalide.';err.style.display='block';return;}
+      if(selectedPays){
+        const digits=telephone.replace(/\D/g,'');
+        if(digits.length!==selectedPays.digits){
+          err.textContent='Format téléphone invalide pour '+selectedPays.nom+' : '+selectedPays.digits+' chiffres requis.';
+          err.style.display='block';return;
+        }
+      }
+
+      btn.disabled=true;btn.textContent='Création en cours...';
+      try{
+        const existing=await supa('users?email=eq.'+encodeURIComponent(email)+'&select=id');
+        if(existing.length>0) throw new Error('Cet email est déjà utilisé.');
+        const password_hash=await hashPassword(pass);
+        const paysNom=selectedPays?selectedPays.nom:pays;
+        const telComplet=selectedPays?selectedPays.prefixe+' '+telephone.replace(/\D/g,''):telephone;
+        const newUser=await supa('users',{method:'POST',body:JSON.stringify({
+          prenom,nom,email,password_hash,
+          date_naissance:datenaissance,niveau,
+          pays:paysNom,telephone:telComplet,
+          categorie,filiere,matiere,
+          score:0,challenges:0,victoires:0,blocked:false
+        })});
+        sessionStorage.setItem('ciq_user',JSON.stringify(newUser[0]));
+        suc.textContent='✅ Compte créé avec succès ! Redirection...';suc.style.display='block';
+        setTimeout(()=>window.location.href='accueil.html',1500);
+      } catch(e){
+        err.textContent=e.message;err.style.display='block';
+        btn.disabled=false;btn.textContent='Créer mon compte';
+      }
+    }
+
+    // Initialiser tel comme désactivé
+    document.getElementById('telephone').disabled=true;
+  </script>
+</body>
+</html>

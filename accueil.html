@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChallengeIQ — Accueil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#080b14;--card:#0e1221;--border:#1e2640;--accent:#f0c93a;--accent2:#3a8ef0;--green:#4ade80;--red:#f87171;--text:#e8eaf0;--muted:#6b7280}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:50px 50px;opacity:0.18;z-index:0;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.1;animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
+    .orb2{width:280px;height:280px;background:#3a8ef0;bottom:-80px;right:-80px;animation-delay:3s}
+    .orb3{width:200px;height:200px;background:#e03a8e;top:40%;left:70%;animation-delay:5s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+    nav{position:sticky;top:0;z-index:200;background:rgba(8,11,20,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
+    .nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;white-space:nowrap}
+    .nav-logo span{color:var(--accent)}
+    .nav-right{display:flex;align-items:center;gap:10px}
+    .nav-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#080b14;flex-shrink:0}
+    .nav-info{display:flex;flex-direction:column}
+    .nav-name{font-size:13px;font-weight:600;line-height:1.2}
+    .nav-cat{font-size:11px;color:var(--muted)}
+    .logout-btn{padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .logout-btn:hover{border-color:var(--red);color:var(--red)}
+    main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 16px}
+    .hero{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:20px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .hero-text h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:5px}
+    .hero-text p{font-size:13px;color:var(--muted)}
+    .hero-stats{display:flex;gap:20px;flex-shrink:0}
+    .h-stat{text-align:center}
+    .h-stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent);line-height:1}
+    .h-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+    .section-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+    /* CHALLENGE FORM */
+    .cf-label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .cf-input{width:100%;padding:10px 13px;background:#131829;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;margin-bottom:12px}
+    .cf-input:focus{border-color:var(--accent)}
+    .timer-row{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+    .timer-row input{max-width:80px}
+    .timer-row span{font-size:12px;color:var(--muted)}
+    .q-counter{font-size:11px;color:var(--muted);text-align:right;margin-bottom:8px}
+    .questions-list{margin-bottom:10px}
+    .question-item{background:#131829;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;position:relative}
+    .q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .q-label-num{font-size:12px;color:var(--accent);font-weight:600}
+    .q-type-row{display:flex;gap:6px;margin-bottom:8px}
+    .q-type-btn{padding:4px 10px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;cursor:pointer;transition:all .2s}
+    .q-type-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(58,142,240,.08)}
+    .remove-q{background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;line-height:1}
+    .q-text-input{width:100%;padding:8px 12px;background:#0e1221;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;margin-bottom:8px}
+    .qcm-options{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+    .qcm-opt{padding:7px 10px;background:#0e1221;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;outline:none;width:100%}
+    .answer-input{width:100%;padding:8px 12px;background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.3);border-radius:8px;color:var(--green);font-size:12px;outline:none}
+    .add-q-btn{width:100%;padding:9px;background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s;margin-bottom:12px}
+    .add-q-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+    .send-btn{width:100%;padding:12px;background:var(--accent);color:#080b14;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s}
+    .send-btn:hover{background:#ffd84d}
+    /* CLASSEMENT */
+    .rank-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .rank-item:last-child{border-bottom:none}
+    .rank-num{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;width:26px;flex-shrink:0}
+    .gold{color:#f0c93a}.silver{color:#a8b2c0}.bronze{color:#cd7f32}
+    .rank-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#080b14;flex-shrink:0}
+    .rank-info{flex:1;min-width:0}
+    .rank-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rank-cat{font-size:11px;color:var(--muted)}
+    .rank-score{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--accent);flex-shrink:0}
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat-box{background:#131829;border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+    .stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--accent2)}
+    .stat-label{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px}
+    /* CATEGORIES */
+    .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .cat-box{background:#131829;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+    .cat-icon-lg{font-size:24px;margin-bottom:6px}
+    .cat-name{font-size:13px;font-weight:600;margin-bottom:2px}
+    .cat-count{font-size:11px;color:var(--muted)}
+    /* CHALLENGES LIST */
+    .ch-row{background:#131829;border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .ch-row:last-child{margin-bottom:0}
+    .ch-info h4{font-size:14px;font-weight:600;margin-bottom:3px}
+    .ch-meta{font-size:11px;color:var(--muted)}
+    .ch-badge{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:default;white-space:nowrap}
+    .badge-pending{background:rgba(240,201,58,.15);color:var(--accent)}
+    .badge-active{background:rgba(74,222,128,.15);color:var(--green);cursor:pointer}
+    .badge-accept{background:var(--accent2);color:white;cursor:pointer}
+    .empty-state{color:var(--muted);font-size:13px;text-align:center;padding:20px}
+    .toast{position:fixed;bottom:20px;right:20px;border-radius:10px;padding:12px 20px;font-size:13px;z-index:999;display:none;animation:slideIn .3s ease;max-width:calc(100vw - 40px)}
+    .toast.ok{background:#0a2a0e;border:1px solid var(--green);color:var(--green)}
+    .toast.err{background:#2a0e0e;border:1px solid #5a1a1a;color:var(--red)}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+    @media(max-width:600px){.hero{flex-direction:column;align-items:flex-start}.hero-stats{gap:16px}.h-stat-val{font-size:22px}.qcm-options{grid-template-columns:1fr}.ch-row{flex-direction:column;align-items:flex-start}.nav-info{display:none}}
+    @media(max-width:480px){nav{padding:0 14px}main{padding:16px 12px}.toast{bottom:12px;right:12px;left:12px}}
+  </style>
+</head>
+<body>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <nav>
+    <div class="nav-logo">⚡ Challenge<span>IQ</span></div>
+    <div class="nav-right">
+      <div class="nav-avatar" id="navAvatar">?</div>
+      <div class="nav-info">
+        <div class="nav-name" id="navName">...</div>
+        <div class="nav-cat" id="navCat"></div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </nav>
+  <main>
+    <div class="hero">
+      <div class="hero-text">
+        <h2 id="heroGreeting">Prêt à challenger ? ⚡</h2>
+        <p>Défiez vos pairs et montez dans le classement</p>
+      </div>
+      <div class="hero-stats">
+        <div class="h-stat"><div class="h-stat-val" id="myScore">0</div><div class="h-stat-label">Points</div></div>
+        <div class="h-stat"><div class="h-stat-val" id="myVictoires">0</div><div class="h-stat-label">Victoires</div></div>
+        <div class="h-stat"><div class="h-stat-val" id="myChallenges">0</div><div class="h-stat-label">Challenges</div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <!-- CRÉER UN CHALLENGE -->
+      <div class="section-card">
+        <div class="section-title">⚔️ Lancer un challenge</div>
+        <label class="cf-label">Email de l'adversaire</label>
+        <input type="email" class="cf-input" id="advEmail" placeholder="adversaire@email.com"/>
+        <label class="cf-label">Titre du challenge</label>
+        <input type="text" class="cf-input" id="chTitle" placeholder="Ex: Duel de Mathématiques"/>
+        <label class="cf-label">Durée par question</label>
+        <div class="timer-row">
+          <input type="number" class="cf-input" id="timerDur" value="60" min="10" max="300" style="margin-bottom:0"/>
+          <span>secondes</span>
+        </div>
+        <div class="q-counter" id="qCounter">0 / 10 questions</div>
+        <div class="questions-list" id="questionsList"></div>
+        <button class="add-q-btn" id="addQBtn" onclick="addQuestion()">+ Ajouter une question</button>
+        <button class="send-btn" onclick="sendChallenge()">🚀 Envoyer le challenge</button>
+      </div>
+      <!-- CLASSEMENT -->
+      <div class="section-card">
+        <div class="section-title">🏆 Classement</div>
+        <div id="classement"><div class="empty-state">Chargement...</div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="section-card">
+        <div class="section-title">📊 Statistiques globales</div>
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-val" id="totalUsers">-</div><div class="stat-label">Participants</div></div>
+          <div class="stat-box"><div class="stat-val" id="totalChallenges">-</div><div class="stat-label">Challenges</div></div>
+          <div class="stat-box"><div class="stat-val" id="totalProfs">-</div><div class="stat-label">Professeurs</div></div>
+          <div class="stat-box"><div class="stat-val" id="totalEtudiants">-</div><div class="stat-label">Étudiants</div></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-title">🎯 Catégories</div>
+        <div class="cat-grid">
+          <div class="cat-box"><div class="cat-icon-lg">🏫</div><div class="cat-name">Prof. Secondaire</div><div class="cat-count" id="cntSec">-</div></div>
+          <div class="cat-box"><div class="cat-icon-lg">🎓</div><div class="cat-name">Prof. Université</div><div class="cat-count" id="cntUni">-</div></div>
+          <div class="cat-box"><div class="cat-icon-lg">📚</div><div class="cat-name">Étudiants</div><div class="cat-count" id="cntEtu">-</div></div>
+          <div class="cat-box"><div class="cat-icon-lg">💡</div><div class="cat-name">Autres</div><div class="cat-count" id="cntAut">-</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">🎮 Mes challenges</div>
+      <div id="challengesList"><div class="empty-state">Aucun challenge en cours.</div></div>
+    </div>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPA_URL = 'https://rkrihsykkijggkyahyei.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrcmloc3lra2lqZ2dreWFoeWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MDU5MDksImV4cCI6MjA4NzE4MTkwOX0.-gXOSJNpZSYe8catqz1SiVQtBg0P0okLTT4TIC0PdHA';
+    const catLabels = {prof_secondaire:'Prof. Secondaire',prof_universite:'Prof. Université',etudiant:'Étudiant(e)',autre:'Autre'};
+
+    async function supa(path, opts={}) {
+      const res = await fetch(SUPA_URL+'/rest/v1/'+path, {
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+        ...opts
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message||'Erreur');
+      return data;
+    }
+
+    // AUTH CHECK
+    const me = JSON.parse(sessionStorage.getItem('ciq_user')||'null');
+    if (!me) { window.location.href='index.html'; }
+
+    // INIT NAV
+    const init = (me.prenom[0]+me.nom[0]).toUpperCase();
+    document.getElementById('navAvatar').textContent = init;
+    document.getElementById('navName').textContent = me.prenom+' '+me.nom;
+    document.getElementById('navCat').textContent = catLabels[me.categorie]||'';
+    document.getElementById('heroGreeting').textContent = 'Bonjour, '+me.prenom+' ⚡';
+    document.getElementById('myScore').textContent = me.score||0;
+    document.getElementById('myVictoires').textContent = me.victoires||0;
+    document.getElementById('myChallenges').textContent = me.challenges||0;
+
+    function logout() { sessionStorage.removeItem('ciq_user'); window.location.href='index.html'; }
+
+    function showToast(msg, ok=true) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = 'toast '+(ok?'ok':'err');
+      t.style.display='block'; setTimeout(()=>t.style.display='none',3000);
+    }
+
+    // LOAD DATA
+    async function loadAll() {
+      try {
+        const [users, challenges] = await Promise.all([
+          supa('users?select=*&order=score.desc'),
+          supa('challenges?select=*')
+        ]);
+        renderClassement(users);
+        renderStats(users, challenges);
+        renderMyChallenges(challenges);
+      } catch(e) { console.error(e); }
+    }
+
+    function renderClassement(users) {
+      const medals = ['🥇','🥈','🥉'];
+      const cls = ['gold','silver','bronze'];
+      const html = users.slice(0,8).map((u,i) => `
+        <div class="rank-item">
+          <div class="rank-num ${cls[i]||''}">${medals[i]||i+1}</div>
+          <div class="rank-avatar">${(u.prenom[0]+u.nom[0]).toUpperCase()}</div>
+          <div class="rank-info">
+            <div class="rank-name">${u.prenom} ${u.nom}</div>
+            <div class="rank-cat">${catLabels[u.categorie]||''}</div>
+          </div>
+          <div class="rank-score">${u.score||0} pts</div>
+        </div>`).join('');
+      document.getElementById('classement').innerHTML = html || '<div class="empty-state">Aucun participant.</div>';
+    }
+
+    function renderStats(users, challenges) {
+      const profs = users.filter(u=>u.categorie==='prof_secondaire'||u.categorie==='prof_universite').length;
+      const etudiants = users.filter(u=>u.categorie==='etudiant').length;
+      document.getElementById('totalUsers').textContent = users.length;
+      document.getElementById('totalChallenges').textContent = challenges.length;
+      document.getElementById('totalProfs').textContent = profs;
+      document.getElementById('totalEtudiants').textContent = etudiants;
+      document.getElementById('cntSec').textContent = users.filter(u=>u.categorie==='prof_secondaire').length+' membres';
+      document.getElementById('cntUni').textContent = users.filter(u=>u.categorie==='prof_universite').length+' membres';
+      document.getElementById('cntEtu').textContent = etudiants+' membres';
+      document.getElementById('cntAut').textContent = users.filter(u=>u.categorie==='autre').length+' membres';
+    }
+
+    function renderMyChallenges(challenges) {
+      const mine = challenges.filter(c=>c.from_uid===me.id||c.to_email===me.email);
+      if (!mine.length) return;
+      const html = mine.map(c => {
+        const isDefie = c.to_email===me.email && c.status==='pending';
+        const isActive = c.status==='active';
+        return `<div class="ch-row">
+          <div class="ch-info">
+            <h4>${c.title}</h4>
+            <div class="ch-meta">${c.from_uid===me.id?'Envoyé à '+c.to_email:'Reçu de '+c.from_name} · ${c.questions?.length||0} questions · ${c.timer_duration||60}s/q</div>
+          </div>
+          ${isDefie?`<button class="ch-badge badge-accept" onclick="acceptChallenge('${c.id}')">Accepter ⚡</button>`
+          :isActive?`<button class="ch-badge badge-active" onclick="window.location.href='challenge.html?id=${c.id}'">Jouer ▶</button>`
+          :`<span class="ch-badge badge-pending">En attente</span>`}
+        </div>`;
+      }).join('');
+      document.getElementById('challengesList').innerHTML = html;
+    }
+
+    async function acceptChallenge(id) {
+      await supa(`challenges?id=eq.${id}`, { method:'PATCH', body:JSON.stringify({status:'active'}) });
+      window.location.href = 'challenge.html?id='+id;
+    }
+
+    // QUESTIONS
+    let questions = [];
+    function addQuestion() {
+      if (questions.length>=10) return;
+      questions.push({id:Date.now(),type:'qcm',text:'',options:['','','',''],answer:''});
+      renderQuestions();
+    }
+    function removeQuestion(id) { questions=questions.filter(q=>q.id!==id); renderQuestions(); }
+    function setQType(id,type) { const q=questions.find(q=>q.id===id); if(q) q.type=type; renderQuestions(); }
+    function updateQText(id,v) { const q=questions.find(q=>q.id===id); if(q) q.text=v; }
+    function updateOption(id,i,v) { const q=questions.find(q=>q.id===id); if(q) q.options[i]=v; }
+    function updateAnswer(id,v) { const q=questions.find(q=>q.id===id); if(q) q.answer=v; }
+
+    function renderQuestions() {
+      document.getElementById('qCounter').textContent = questions.length+' / 10 questions';
+      document.getElementById('addQBtn').style.display = questions.length>=10?'none':'block';
+      document.getElementById('questionsList').innerHTML = questions.map((q,i)=>`
+        <div class="question-item">
+          <div class="q-header">
+            <span class="q-label-num">Question ${i+1}</span>
+            <button class="remove-q" onclick="removeQuestion(${q.id})">✕</button>
+          </div>
+          <div class="q-type-row">
+            <button class="q-type-btn ${q.type==='qcm'?'active':''}" onclick="setQType(${q.id},'qcm')">QCM</button>
+            <button class="q-type-btn ${q.type==='ouverte'?'active':''}" onclick="setQType(${q.id},'ouverte')">Ouverte</button>
+          </div>
+          <input class="q-text-input" placeholder="Énoncé..." value="${q.text}" oninput="updateQText(${q.id},this.value)"/>
+          ${q.type==='qcm'?`
+            <div class="qcm-options">
+              ${q.options.map((o,j)=>`<input class="qcm-opt" placeholder="Option ${j+1}" value="${o}" oninput="updateOption(${q.id},${j},this.value)"/>`).join('')}
+            </div>` :''}
+          <input class="answer-input" placeholder="✅ Bonne réponse..." value="${q.answer}" oninput="updateAnswer(${q.id},this.value)"/>
+        </div>`).join('');
+    }
+
+    async function sendChallenge() {
+      const toEmail = document.getElementById('advEmail').value.trim();
+      const title = document.getElementById('chTitle').value.trim();
+      const timer_duration = parseInt(document.getElementById('timerDur').value)||60;
+      if (!toEmail||!title||!questions.length) { showToast('⚠️ Remplissez tous les champs et ajoutez au moins une question.',false); return; }
+      try {
+        await supa('challenges',{method:'POST',body:JSON.stringify({
+          from_uid:me.id, from_name:me.prenom+' '+me.nom, from_email:me.email,
+          to_email:toEmail, title, timer_duration, questions, status:'pending'
+        })});
+        await supa(`users?id=eq.${me.id}`,{method:'PATCH',body:JSON.stringify({challenges:(me.challenges||0)+1})});
+        me.challenges=(me.challenges||0)+1;
+        sessionStorage.setItem('ciq_user',JSON.stringify(me));
+        document.getElementById('myC hallenges').textContent=me.challenges;
+        document.getElementById('advEmail').value='';
+        document.getElementById('chTitle').value='';
+        questions=[]; renderQuestions();
+        showToast('✅ Challenge envoyé !');
+        loadAll();
+      } catch(e) { showToast('❌ Erreur: '+e.message,false); }
+    }
+
+    loadAll();
+    setInterval(loadAll, 15000); // Refresh toutes les 15s
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChallengeIQ — Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#080b14;--card:#0e1221;--border:#1e2640;--accent:#f0c93a;--accent2:#3a8ef0;--green:#4ade80;--red:#f87171;--text:#e8eaf0;--muted:#6b7280}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden;position:relative}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:50px 50px;opacity:0.2;z-index:0;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.12;animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
+    .orb1{width:350px;height:350px;background:#f0c93a;top:-100px;left:-100px}
+    .orb2{width:280px;height:280px;background:#3a8ef0;bottom:-80px;right:-80px;animation-delay:3s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+    .wrapper{position:relative;z-index:1;width:100%;max-width:440px;padding:24px 16px}
+    .logo{text-align:center;margin-bottom:28px;animation:fadeDown .6s ease both}
+    .logo-icon{font-size:44px;display:block;margin-bottom:8px}
+    .logo h1{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;letter-spacing:-1px}
+    .logo h1 span{color:var(--accent)}
+    .logo p{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:2px;text-transform:uppercase}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;animation:fadeUp .6s ease .2s both;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .card-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:5px}
+    .card-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+    .field{margin-bottom:15px}
+    label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+    input{width:100%;padding:11px 14px;background:#131829;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s,box-shadow .2s;outline:none}
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,201,58,.1)}
+    .btn{width:100%;padding:13px;background:var(--accent);color:#080b14;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;margin-top:6px}
+    .btn:hover{background:#ffd84d;transform:translateY(-1px);box-shadow:0 6px 20px rgba(240,201,58,.25)}
+    .btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn-outline{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;text-align:center;text-decoration:none;display:block;margin-top:12px}
+    .btn-outline:hover{border-color:var(--accent2);color:var(--accent2)}
+    .divider{text-align:center;color:var(--muted);font-size:12px;margin:18px 0;position:relative}
+    .divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border)}
+    .divider::before{left:0}.divider::after{right:0}
+    .error-msg{background:#2a0e0e;border:1px solid #5a1a1a;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:480px){.logo h1{font-size:26px}.card{padding:22px 18px}}
+  </style>
+</head>
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="wrapper">
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <h1>Challenge<span>IQ</span></h1>
+      <p>Plateforme de défis intellectuels</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Bon retour 👋</div>
+      <div class="card-sub">Connectez-vous pour relever des défis</div>
+      <div class="error-msg" id="err"></div>
+      <div class="field"><label>Email ou nom d'utilisateur</label><input type="text" id="login" placeholder="votre@email.com" autocomplete="username"/></div>
+      <div class="field"><label>Mot de passe</label><input type="password" id="pass" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="btn" id="loginBtn" onclick="login()">Se connecter</button>
+      <div class="divider">ou</div>
+      <a href="inscription.html" class="btn-outline">Créer un compte</a>
+    </div>
+  </div>
+
+  <script>
+    const SUPA_URL='https://rkrihsykkijggkyahyei.supabase.co';
+    const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrcmloc3lra2lqZ2dreWFoeWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MDU5MDksImV4cCI6MjA4NzE4MTkwOX0.-gXOSJNpZSYe8catqz1SiVQtBg0P0okLTT4TIC0PdHA';
+    const ADMIN_USER='Josky Hacker';
+    const ADMIN_PASS='Anonymous@245';
+
+    const session=JSON.parse(sessionStorage.getItem('ciq_user')||'null');
+    if(session) window.location.href=session.is_admin?'admin.html':'accueil.html';
+
+    async function supa(path,opts={}){
+      const res=await fetch(SUPA_URL+'/rest/v1/'+path,{
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+        ...opts
+      });
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.message||'Erreur');
+      return data;
+    }
+
+    async function hashPassword(p){
+      const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function login(){
+      const loginVal=document.getElementById('login').value.trim();
+      const pass=document.getElementById('pass').value;
+      const err=document.getElementById('err');
+      const btn=document.getElementById('loginBtn');
+      err.style.display='none';
+      if(!loginVal||!pass){err.textContent='Veuillez remplir tous les champs.';err.style.display='block';return;}
+
+      // Vérification admin
+      if(loginVal===ADMIN_USER && pass===ADMIN_PASS){
+        sessionStorage.setItem('ciq_user',JSON.stringify({is_admin:true,prenom:'Josky',nom:'Hacker',email:'admin@challengeiq.com'}));
+        window.location.href='admin.html'; return;
+      }
+
+      btn.disabled=true;btn.textContent='Connexion...';
+      try{
+        const hash=await hashPassword(pass);
+        const users=await supa('users?email=eq.'+encodeURIComponent(loginVal)+'&password_hash=eq.'+hash+'&select=*');
+        if(!users.length) throw new Error('Identifiants incorrects.');
+        if(users[0].blocked) throw new Error('Votre compte a été bloqué. Contactez l\'administrateur.');
+        sessionStorage.setItem('ciq_user',JSON.stringify(users[0]));
+        window.location.href='accueil.html';
+      } catch(e){
+        err.textContent=e.message;err.style.display='block';
+        btn.disabled=false;btn.textContent='Se connecter';
+      }
+    }
+
+    document.addEventListener('keydown',e=>{if(e.key==='Enter') login();});
+  </script>
+</body>
+</html>

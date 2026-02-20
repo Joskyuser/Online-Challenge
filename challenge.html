@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChallengeIQ — En jeu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#080b14;--card:#0e1221;--border:#1e2640;--accent:#f0c93a;--accent2:#3a8ef0;--green:#4ade80;--red:#f87171;--text:#e8eaf0;--muted:#6b7280}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:50px 50px;opacity:0.18;z-index:0;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.1;animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
+    .orb1{width:300px;height:300px;background:#f0c93a;top:-80px;left:-80px}
+    .orb2{width:250px;height:250px;background:#3a8ef0;bottom:-60px;right:-60px;animation-delay:3s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+    nav{position:sticky;top:0;z-index:200;background:rgba(8,11,20,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+    .nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+    .nav-logo span{color:var(--accent)}
+    .back-btn{padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:none;transition:all .2s}
+    .back-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+    .game-wrap{position:relative;z-index:1;max-width:680px;margin:0 auto;width:100%;padding:24px 16px;flex:1}
+    .game-header{text-align:center;margin-bottom:24px}
+    .game-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px}
+    .game-meta{font-size:13px;color:var(--muted)}
+    .timer-wrap{display:flex;justify-content:center;margin-bottom:24px}
+    .timer-circle{width:100px;height:100px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:4px solid var(--accent);background:rgba(240,201,58,.05);transition:border-color .3s,background .3s}
+    .timer-circle.warning{border-color:var(--red);background:rgba(248,113,113,.05)}
+    .timer-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1}
+    .timer-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+    .progress-bar{background:var(--border);border-radius:99px;height:6px;margin-bottom:6px}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .3s}
+    .progress-lbl{text-align:center;font-size:12px;color:var(--muted);margin-bottom:24px}
+    .q-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;overflow:hidden;animation:fadeUp .4s ease both}
+    .q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+    .q-badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px}
+    .badge-qcm{background:rgba(58,142,240,.15);color:var(--accent2)}
+    .badge-open{background:rgba(240,201,58,.15);color:var(--accent)}
+    .q-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;line-height:1.4;margin-bottom:24px}
+    .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .opt-btn{padding:14px 16px;background:#131829;border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;text-align:left}
+    .opt-btn:hover:not(:disabled){border-color:var(--accent2);background:rgba(58,142,240,.08)}
+    .opt-btn.correct{border-color:var(--green);background:rgba(74,222,128,.12);color:var(--green)}
+    .opt-btn.wrong{border-color:var(--red);background:rgba(248,113,113,.12);color:var(--red)}
+    .open-input{width:100%;padding:14px;background:#131829;border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;margin-bottom:12px;transition:border-color .2s}
+    .open-input:focus{border-color:var(--accent)}
+    .submit-open{width:100%;padding:12px;background:var(--accent2);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;margin-bottom:12px;display:none}
+    .feedback{padding:12px 16px;border-radius:10px;font-size:14px;font-weight:500;margin-bottom:16px;display:none}
+    .feedback.ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:var(--green)}
+    .feedback.fail{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+    .next-btn{width:100%;padding:13px;background:var(--accent);color:#080b14;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;display:none;transition:all .2s}
+    .next-btn:hover{background:#ffd84d}
+    .result-screen{display:none;text-align:center;animation:fadeUp .5s ease both}
+    .result-emoji{font-size:64px;margin-bottom:16px}
+    .result-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px}
+    .result-sub{font-size:15px;color:var(--muted);margin-bottom:24px}
+    .score-big{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--accent);margin-bottom:4px}
+    .score-lbl{font-size:13px;color:var(--muted);margin-bottom:28px}
+    .home-btn{display:inline-block;padding:13px 32px;background:var(--accent);color:#080b14;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;text-decoration:none;transition:all .2s}
+    .home-btn:hover{background:#ffd84d}
+    .loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:15px;position:relative;z-index:1}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:500px){.options-grid{grid-template-columns:1fr}.q-text{font-size:16px}.timer-circle{width:84px;height:84px}.timer-val{font-size:26px}}
+  </style>
+</head>
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <nav>
+    <div class="nav-logo">⚡ Challenge<span>IQ</span></div>
+    <a href="accueil.html" class="back-btn">← Accueil</a>
+  </nav>
+
+  <div id="loadingEl" class="loading">Chargement du challenge...</div>
+
+  <div class="game-wrap" id="gameEl" style="display:none">
+    <div class="game-header">
+      <div class="game-title" id="gameTitle"></div>
+      <div class="game-meta" id="gameMeta"></div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-circle" id="timerCircle">
+        <div class="timer-val" id="timerVal">--</div>
+        <div class="timer-lbl">sec</div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <div class="progress-lbl" id="progLbl">Question 0 / 0</div>
+    <div class="q-card" id="qCard">
+      <div class="q-badge" id="qBadge"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options-grid" id="optGrid"></div>
+      <input type="text" class="open-input" id="openInput" placeholder="Votre réponse..." style="display:none"/>
+      <button class="submit-open" id="submitBtn" onclick="submitOpen()">Valider ✓</button>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Question suivante →</button>
+    </div>
+  </div>
+
+  <div class="game-wrap" id="resultEl" style="display:none">
+    <div class="result-screen" id="resultScreen">
+      <div class="result-emoji" id="rEmoji">🏆</div>
+      <div class="result-title" id="rTitle">Challenge terminé !</div>
+      <div class="result-sub" id="rSub"></div>
+      <div class="score-big" id="rScore">0</div>
+      <div class="score-lbl">points gagnés</div>
+      <a href="accueil.html" class="home-btn">Retour à l'accueil</a>
+    </div>
+  </div>
+
+  <script>
+    const SUPA_URL = 'https://rkrihsykkijggkyahyei.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrcmloc3lra2lqZ2dreWFoeWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MDU5MDksImV4cCI6MjA4NzE4MTkwOX0.-gXOSJNpZSYe8catqz1SiVQtBg0P0okLTT4TIC0PdHA';
+
+    async function supa(path, opts={}) {
+      const res = await fetch(SUPA_URL+'/rest/v1/'+path, {
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+        ...opts
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message||'Erreur');
+      return data;
+    }
+
+    const me = JSON.parse(sessionStorage.getItem('ciq_user')||'null');
+    if (!me) window.location.href='index.html';
+
+    const params = new URLSearchParams(window.location.search);
+    const challengeId = params.get('id');
+    if (!challengeId) window.location.href='accueil.html';
+
+    let challenge=null, currentQ=0, score=0, timer=null, answered=false;
+
+    async function init() {
+      try {
+        const data = await supa(`challenges?id=eq.${challengeId}&select=*`);
+        if (!data.length) { window.location.href='accueil.html'; return; }
+        challenge = data[0];
+        document.getElementById('loadingEl').style.display='none';
+        document.getElementById('gameEl').style.display='block';
+        document.getElementById('gameTitle').textContent = challenge.title;
+        document.getElementById('gameMeta').textContent = `${challenge.questions.length} questions · ${challenge.timer_duration}s par question`;
+        showQuestion();
+      } catch(e) { document.getElementById('loadingEl').textContent='Erreur de chargement.'; }
+    }
+
+    function showQuestion() {
+      answered = false;
+      const q = challenge.questions[currentQ];
+      const total = challenge.questions.length;
+      document.getElementById('progFill').style.width = (currentQ/total*100)+'%';
+      document.getElementById('progLbl').textContent = `Question ${currentQ+1} / ${total}`;
+      document.getElementById('qBadge').textContent = q.type==='qcm'?'🔘 QCM':'✏️ Question ouverte';
+      document.getElementById('qBadge').className = 'q-badge '+(q.type==='qcm'?'badge-qcm':'badge-open');
+      document.getElementById('qText').textContent = q.text;
+      document.getElementById('feedback').style.display='none';
+      document.getElementById('nextBtn').style.display='none';
+
+      if (q.type==='qcm') {
+        document.getElementById('optGrid').style.display='grid';
+        document.getElementById('openInput').style.display='none';
+        document.getElementById('submitBtn').style.display='none';
+        document.getElementById('optGrid').innerHTML = q.options.map((opt,i)=>
+          `<button class="opt-btn" onclick="selectOpt(this,'${opt.replace(/'/g,"\\'")}','${q.answer.replace(/'/g,"\\'")}')">
+            <strong>${String.fromCharCode(65+i)}.</strong> ${opt}
+          </button>`
+        ).join('');
+      } else {
+        document.getElementById('optGrid').style.display='none';
+        document.getElementById('openInput').style.display='block';
+        document.getElementById('openInput').value='';
+        document.getElementById('submitBtn').style.display='block';
+      }
+      startTimer(challenge.timer_duration);
+    }
+
+    function startTimer(sec) {
+      clearInterval(timer);
+      let t = sec;
+      const circle = document.getElementById('timerCircle');
+      const val = document.getElementById('timerVal');
+      val.textContent = t; circle.classList.remove('warning');
+      timer = setInterval(()=>{
+        t--;
+        val.textContent = t;
+        if (t<=10) circle.classList.add('warning');
+        if (t<=0) { clearInterval(timer); if(!answered) timeUp(); }
+      },1000);
+    }
+
+    function timeUp() {
+      answered=true;
+      const fb=document.getElementById('feedback');
+      fb.textContent='⏱️ Temps écoulé ! Bonne réponse : '+challenge.questions[currentQ].answer;
+      fb.className='feedback fail'; fb.style.display='block';
+      document.getElementById('nextBtn').style.display='block';
+      document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+      document.getElementById('submitBtn').style.display='none';
+    }
+
+    function selectOpt(btn, selected, correct) {
+      if (answered) return;
+      answered=true; clearInterval(timer);
+      document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+      const fb=document.getElementById('feedback');
+      if (selected===correct) {
+        btn.classList.add('correct'); score+=10;
+        fb.textContent='✅ Bonne réponse ! +10 points'; fb.className='feedback ok';
+      } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.opt-btn').forEach(b=>{ if(b.textContent.includes(correct)) b.classList.add('correct'); });
+        fb.textContent='❌ Incorrect. Bonne réponse : '+correct; fb.className='feedback fail';
+      }
+      fb.style.display='block'; document.getElementById('nextBtn').style.display='block';
+    }
+
+    function submitOpen() {
+      if (answered) return;
+      const userAns = document.getElementById('openInput').value.trim().toLowerCase();
+      const correct = challenge.questions[currentQ].answer.trim().toLowerCase();
+      answered=true; clearInterval(timer);
+      document.getElementById('submitBtn').style.display='none';
+      const fb=document.getElementById('feedback');
+      if (userAns===correct) {
+        score+=10; fb.textContent='✅ Bonne réponse ! +10 points'; fb.className='feedback ok';
+      } else {
+        fb.textContent='❌ Incorrect. Bonne réponse : '+challenge.questions[currentQ].answer; fb.className='feedback fail';
+      }
+      fb.style.display='block'; document.getElementById('nextBtn').style.display='block';
+    }
+
+    function nextQuestion() {
+      currentQ++;
+      if (currentQ>=challenge.questions.length) { endGame(); return; }
+      showQuestion();
+    }
+
+    async function endGame() {
+      clearInterval(timer);
+      document.getElementById('gameEl').style.display='none';
+      const resultEl=document.getElementById('resultEl');
+      resultEl.style.display='block';
+      document.getElementById('resultScreen').style.display='block';
+      const max=challenge.questions.length*10;
+      const pct=score/max;
+      document.getElementById('rScore').textContent='+'+score;
+      if(pct>=0.8){document.getElementById('rEmoji').textContent='🏆';document.getElementById('rTitle').textContent='Excellent !';document.getElementById('rSub').textContent='Vous avez dominé ce challenge !';}
+      else if(pct>=0.5){document.getElementById('rEmoji').textContent='👍';document.getElementById('rTitle').textContent='Bon travail !';document.getElementById('rSub').textContent='Continue comme ça !';}
+      else{document.getElementById('rEmoji').textContent='💪';document.getElementById('rTitle').textContent='Courage !';document.getElementById('rSub').textContent='Revanche pour progresser !';}
+      try {
+        const newScore=(me.score||0)+score;
+        const newVic=pct>=0.5?(me.victoires||0)+1:(me.victoires||0);
+        await supa(`users?id=eq.${me.id}`,{method:'PATCH',body:JSON.stringify({score:newScore,victoires:newVic})});
+        await supa(`challenges?id=eq.${challengeId}`,{method:'PATCH',body:JSON.stringify({status:'completed'})});
+        me.score=newScore; me.victoires=newVic;
+        sessionStorage.setItem('ciq_user',JSON.stringify(me));
+      } catch(e){ console.error(e); }
+    }
+
+    init();
+  </script>
+</body>
+</html>

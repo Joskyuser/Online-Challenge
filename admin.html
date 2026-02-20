@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChallengeIQ — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#080b14;--card:#0e1221;--border:#1e2640;--accent:#f0c93a;--accent2:#3a8ef0;--green:#4ade80;--red:#f87171;--text:#e8eaf0;--muted:#6b7280}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:50px 50px;opacity:0.18;z-index:0;pointer-events:none}
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:0.1;animation:float 8s ease-in-out infinite;pointer-events:none;z-index:0}
+    .orb1{width:350px;height:350px;background:#f0c93a;top:-100px;left:-100px}
+    .orb2{width:280px;height:280px;background:#3a8ef0;bottom:-80px;right:-80px;animation-delay:3s}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-25px)}}
+    nav{position:sticky;top:0;z-index:200;background:rgba(8,11,20,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:12px}
+    .nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+    .nav-logo span{color:var(--accent)}
+    .nav-right{display:flex;align-items:center;gap:10px}
+    .admin-badge-nav{font-size:12px;color:var(--accent);background:rgba(240,201,58,.1);padding:5px 12px;border-radius:99px;border:1px solid rgba(240,201,58,.3)}
+    .logout-btn{padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{border-color:var(--red);color:var(--red)}
+    main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:24px 16px}
+    /* KPI */
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+    .kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;position:relative;overflow:hidden}
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+    .kpi.blue::before{background:var(--accent2)}.kpi.yellow::before{background:var(--accent)}.kpi.green::before{background:var(--green)}.kpi.red::before{background:var(--red)}
+    .kpi-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;margin-bottom:3px}
+    .kpi.blue .kpi-val{color:var(--accent2)}.kpi.yellow .kpi-val{color:var(--accent)}.kpi.green .kpi-val{color:var(--green)}.kpi.red .kpi-val{color:var(--red)}
+    .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+    /* SETTINGS CARD */
+    .settings-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
+    .settings-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .setting-group label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+    .setting-group input{width:100%;padding:10px 13px;background:#131829;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+    .setting-group input:focus{border-color:var(--accent)}
+    .save-settings-btn{margin-top:14px;padding:10px 24px;background:var(--accent);color:#080b14;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s}
+    .save-settings-btn:hover{background:#ffd84d}
+    /* SECTION */
+    .section-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    /* TABS */
+    .tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+    .tab{padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s}
+    .tab.active{border-color:var(--accent);color:var(--accent);background:rgba(240,201,58,.08)}
+    .tab-content{display:none}.tab-content.active{display:block}
+    /* SEARCH */
+    .search-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .search-input{flex:1;min-width:200px;padding:9px 13px;background:#131829;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none;transition:border-color .2s}
+    .search-input:focus{border-color:var(--accent)}
+    /* TABLE */
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead tr{border-bottom:2px solid var(--border)}
+    th{padding:10px 10px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+    td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.02)}
+    .td-name{font-weight:600}
+    .cat-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+    .c-sec{background:rgba(58,142,240,.15);color:var(--accent2)}
+    .c-uni{background:rgba(240,201,58,.15);color:var(--accent)}
+    .c-etu{background:rgba(74,222,128,.15);color:var(--green)}
+    .c-aut{background:rgba(107,114,128,.15);color:var(--muted)}
+    .st-pill{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+    .st-pending{background:rgba(240,201,58,.15);color:var(--accent)}
+    .st-active{background:rgba(74,222,128,.15);color:var(--green)}
+    .st-completed{background:rgba(107,114,128,.15);color:var(--muted)}
+    .blocked-badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(248,113,113,.15);color:var(--red)}
+    /* ACTION BUTTONS */
+    .actions{display:flex;gap:5px;flex-wrap:wrap}
+    .act-btn{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+    .btn-view{background:rgba(58,142,240,.15);color:var(--accent2)}
+    .btn-edit{background:rgba(240,201,58,.15);color:var(--accent)}
+    .btn-block{background:rgba(248,113,113,.15);color:var(--red)}
+    .btn-unblock{background:rgba(74,222,128,.15);color:var(--green)}
+    .btn-delete{background:rgba(248,113,113,.2);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+    .act-btn:hover{opacity:.8;transform:scale(1.05)}
+    .empty-row td{text-align:center;color:var(--muted);padding:30px}
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .3s ease}
+    .modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+    .modal-close{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+    .modal-close:hover{color:var(--text)}
+    .modal .field{margin-bottom:13px}
+    .modal label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+    .modal input,.modal select{width:100%;padding:10px 13px;background:#131829;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+    .modal input:focus,.modal select:focus{border-color:var(--accent)}
+    .modal input[readonly]{opacity:.6;cursor:not-allowed}
+    .modal-row{display:flex;gap:12px}
+    .modal-row .field{flex:1}
+    .modal-btn{padding:11px 22px;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s}
+    .modal-btn.primary{background:var(--accent);color:#080b14}
+    .modal-btn.primary:hover{background:#ffd84d}
+    .modal-btn.danger{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+    .modal-btn.danger:hover{background:rgba(248,113,113,.3)}
+    .modal-btn.secondary{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .modal-btn.secondary:hover{border-color:var(--accent2);color:var(--accent2)}
+    .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .info-box{background:#131829;border:1px solid var(--border);border-radius:8px;padding:12px}
+    .info-box-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+    .info-box-val{font-size:14px;font-weight:500;word-break:break-all}
+    /* TOAST */
+    .toast{position:fixed;bottom:20px;right:20px;border-radius:10px;padding:12px 20px;font-size:13px;z-index:999;display:none;animation:slideIn .3s ease;max-width:calc(100vw - 40px)}
+    .toast.ok{background:#0a2a0e;border:1px solid var(--green);color:var(--green)}
+    .toast.err{background:#2a0e0e;border:1px solid #5a1a1a;color:var(--red)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    @media(max-width:900px){.kpi-grid{grid-template-columns:1fr 1fr}.settings-grid{grid-template-columns:1fr}}
+    @media(max-width:500px){.kpi-grid{grid-template-columns:1fr 1fr}th,td{padding:7px 7px}nav{padding:0 14px}.modal{padding:20px 16px}.info-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+
+  <nav>
+    <div class="nav-logo">⚡ Admin<span>IQ</span></div>
+    <div class="nav-right">
+      <span class="admin-badge-nav">🔐 Josky Hacker</span>
+      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi blue"><div class="kpi-val" id="kpiUsers">-</div><div class="kpi-label">Utilisateurs</div></div>
+      <div class="kpi yellow"><div class="kpi-val" id="kpiChallenges">-</div><div class="kpi-label">Challenges</div></div>
+      <div class="kpi green"><div class="kpi-val" id="kpiActive">-</div><div class="kpi-label">En cours</div></div>
+      <div class="kpi red"><div class="kpi-val" id="kpiBlocked">-</div><div class="kpi-label">Bloqués</div></div>
+    </div>
+
+    <!-- PARAMÈTRES ADMIN -->
+    <div class="settings-card">
+      <div class="settings-title">⚙️ Paramètres du compte administrateur</div>
+      <div class="settings-grid">
+        <div class="setting-group">
+          <label>Nom d'utilisateur admin</label>
+          <input type="text" id="adminNewUser" placeholder="Nouveau nom d'utilisateur"/>
+        </div>
+        <div class="setting-group">
+          <label>Nouveau mot de passe</label>
+          <input type="password" id="adminNewPass" placeholder="Nouveau mot de passe"/>
+        </div>
+      </div>
+      <button class="save-settings-btn" onclick="saveAdminSettings()">💾 Enregistrer les modifications</button>
+    </div>
+
+    <!-- DONNÉES -->
+    <div class="section-card">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('users',this)">👥 Utilisateurs</button>
+        <button class="tab" onclick="switchTab('challenges',this)">⚔️ Challenges</button>
+      </div>
+
+      <!-- USERS -->
+      <div class="tab-content active" id="tab-users">
+        <div class="search-row">
+          <input type="text" class="search-input" placeholder="🔍 Rechercher par nom, email, pays..." oninput="filterUsers(this.value)"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Nom</th><th>Email</th><th>Pays</th><th>Catégorie</th>
+              <th>Score</th><th>Statut</th><th>Inscrit le</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="usersTbody"><tr class="empty-row"><td colspan="8">Chargement...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CHALLENGES -->
+      <div class="tab-content" id="tab-challenges">
+        <div class="search-row">
+          <input type="text" class="search-input" placeholder="🔍 Rechercher un challenge..." oninput="filterChallenges(this.value)"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Titre</th><th>De</th><th>À</th><th>Questions</th><th>Statut</th><th>Date</th><th>Action</th>
+            </tr></thead>
+            <tbody id="chTbody"><tr class="empty-row"><td colspan="7">Chargement...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL VOIR INFOS -->
+  <div class="modal-overlay" id="modalView">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('modalView')">✕</button>
+      <div class="modal-title">👤 Informations de l'utilisateur</div>
+      <div class="info-grid" id="viewContent"></div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeModal('modalView')">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MODIFIER -->
+  <div class="modal-overlay" id="modalEdit">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('modalEdit')">✕</button>
+      <div class="modal-title">✏️ Modifier l'utilisateur</div>
+      <input type="hidden" id="editId"/>
+      <div class="modal-row">
+        <div class="field"><label>Prénom</label><input type="text" id="editPrenom"/></div>
+        <div class="field"><label>Nom</label><input type="text" id="editNom"/></div>
+      </div>
+      <div class="field"><label>Email</label><input type="email" id="editEmail"/></div>
+      <div class="field"><label>Téléphone</label><input type="text" id="editTel"/></div>
+      <div class="field"><label>Pays</label><input type="text" id="editPays"/></div>
+      <div class="modal-row">
+        <div class="field"><label>Niveau</label><input type="text" id="editNiveau"/></div>
+        <div class="field"><label>Score</label><input type="number" id="editScore"/></div>
+      </div>
+      <div class="modal-row">
+        <div class="field"><label>Victoires</label><input type="number" id="editVictoires"/></div>
+        <div class="field"><label>Catégorie</label>
+          <select id="editCategorie">
+            <option value="prof_secondaire">Prof. Secondaire</option>
+            <option value="prof_universite">Prof. Université</option>
+            <option value="etudiant">Étudiant(e)</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Nouveau mot de passe (laisser vide pour ne pas changer)</label><input type="password" id="editPass" placeholder="Nouveau mot de passe..."/></div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeModal('modalEdit')">Annuler</button>
+        <button class="modal-btn primary" onclick="saveEdit()">💾 Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMER DELETE -->
+  <div class="modal-overlay" id="modalDelete">
+    <div class="modal" style="max-width:400px;text-align:center">
+      <div class="modal-title" style="justify-content:center">⚠️ Confirmer la suppression</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:18px">Cette action est irréversible. L'utilisateur sera définitivement supprimé.</p>
+      <input type="hidden" id="deleteId"/>
+      <div class="modal-actions" style="justify-content:center">
+        <button class="modal-btn secondary" onclick="closeModal('modalDelete')">Annuler</button>
+        <button class="modal-btn danger" onclick="confirmDelete()">🗑️ Supprimer définitivement</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPA_URL='https://rkrihsykkijggkyahyei.supabase.co';
+    const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrcmloc3lra2lqZ2dreWFoeWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2MDU5MDksImV4cCI6MjA4NzE4MTkwOX0.-gXOSJNpZSYe8catqz1SiVQtBg0P0okLTT4TIC0PdHA';
+
+    // Vérification session admin
+    const adminSession=JSON.parse(sessionStorage.getItem('ciq_user')||'null');
+    if(!adminSession||!adminSession.is_admin){ window.location.href='index.html'; }
+
+    // Credentials admin (modifiables)
+    let ADMIN_USER=sessionStorage.getItem('admin_username')||'Josky Hacker';
+    let ADMIN_PASS=sessionStorage.getItem('admin_password')||'Anonymous@245';
+
+    const catLabels={prof_secondaire:'Prof. Secondaire',prof_universite:'Prof. Université',etudiant:'Étudiant',autre:'Autre'};
+    const catCls={prof_secondaire:'c-sec',prof_universite:'c-uni',etudiant:'c-etu',autre:'c-aut'};
+    const stLabels={pending:'En attente',active:'En cours',completed:'Terminé'};
+    const stCls={pending:'st-pending',active:'st-active',completed:'st-completed'};
+
+    let allUsers=[], allChallenges=[];
+
+    async function supa(path,opts={}){
+      const res=await fetch(SUPA_URL+'/rest/v1/'+path,{
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+        ...opts
+      });
+      if(res.status===204) return [];
+      const data=await res.json();
+      if(!res.ok) throw new Error(data.message||'Erreur');
+      return data;
+    }
+
+    async function hashPassword(p){
+      const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    function logout(){ sessionStorage.removeItem('ciq_user'); window.location.href='index.html'; }
+
+    function saveAdminSettings(){
+      const newUser=document.getElementById('adminNewUser').value.trim();
+      const newPass=document.getElementById('adminNewPass').value;
+      if(newUser){ ADMIN_USER=newUser; sessionStorage.setItem('admin_username',newUser); }
+      if(newPass){ ADMIN_PASS=newPass; sessionStorage.setItem('admin_password',newPass); }
+      if(newUser||newPass) showToast('✅ Paramètres admin mis à jour !');
+      else showToast('⚠️ Aucune modification saisie.',false);
+      document.getElementById('adminNewUser').value='';
+      document.getElementById('adminNewPass').value='';
+    }
+
+    async function loadDashboard(){
+      try{
+        const [users,challenges]=await Promise.all([
+          supa('users?select=*&order=score.desc'),
+          supa('challenges?select=*&order=created_at.desc')
+        ]);
+        allUsers=users; allChallenges=challenges;
+        document.getElementById('kpiUsers').textContent=users.length;
+        document.getElementById('kpiChallenges').textContent=challenges.length;
+        document.getElementById('kpiActive').textContent=challenges.filter(c=>c.status==='active').length;
+        document.getElementById('kpiBlocked').textContent=users.filter(u=>u.blocked).length;
+        renderUsers(users);
+        renderChallenges(challenges);
+      } catch(e){ showToast('Erreur: '+e.message,false); }
+    }
+
+    function renderUsers(users){
+      if(!users.length){document.getElementById('usersTbody').innerHTML='<tr class="empty-row"><td colspan="8">Aucun utilisateur</td></tr>';return;}
+      document.getElementById('usersTbody').innerHTML=users.map(u=>`
+        <tr>
+          <td class="td-name">${u.prenom||''} ${u.nom||''}</td>
+          <td style="color:var(--muted);font-size:12px">${u.email||'-'}</td>
+          <td style="font-size:12px">${u.pays||'-'}</td>
+          <td><span class="cat-pill ${catCls[u.categorie]||'c-aut'}">${catLabels[u.categorie]||'Autre'}</span></td>
+          <td><strong style="color:var(--accent)">${u.score||0}</strong></td>
+          <td>${u.blocked?'<span class="blocked-badge">🚫 Bloqué</span>':'<span style="color:var(--green);font-size:12px">✅ Actif</span>'}</td>
+          <td style="color:var(--muted);font-size:11px">${u.created_at?new Date(u.created_at).toLocaleDateString('fr'):'-'}</td>
+          <td><div class="actions">
+            <button class="act-btn btn-view" onclick="viewUser('${u.id}')">👁 Voir</button>
+            <button class="act-btn btn-edit" onclick="editUser('${u.id}')">✏️ Modifier</button>
+            ${u.blocked
+              ?`<button class="act-btn btn-unblock" onclick="toggleBlock('${u.id}',false)">✅ Débloquer</button>`
+              :`<button class="act-btn btn-block" onclick="toggleBlock('${u.id}',true)">🚫 Bloquer</button>`}
+            <button class="act-btn btn-delete" onclick="openDelete('${u.id}')">🗑️</button>
+          </div></td>
+        </tr>`).join('');
+    }
+
+    function renderChallenges(challenges){
+      if(!challenges.length){document.getElementById('chTbody').innerHTML='<tr class="empty-row"><td colspan="7">Aucun challenge</td></tr>';return;}
+      document.getElementById('chTbody').innerHTML=challenges.map(c=>`
+        <tr>
+          <td class="td-name">${c.title||'-'}</td>
+          <td style="color:var(--muted);font-size:12px">${c.from_name||c.from_email||'-'}</td>
+          <td style="color:var(--muted);font-size:12px">${c.to_email||'-'}</td>
+          <td style="text-align:center">${c.questions?.length||0}</td>
+          <td><span class="st-pill ${stCls[c.status]||'st-pending'}">${stLabels[c.status]||'En attente'}</span></td>
+          <td style="color:var(--muted);font-size:11px">${c.created_at?new Date(c.created_at).toLocaleDateString('fr'):'-'}</td>
+          <td><button class="act-btn btn-delete" onclick="deleteChallenge('${c.id}')">🗑️ Supprimer</button></td>
+        </tr>`).join('');
+    }
+
+    function viewUser(id){
+      const u=allUsers.find(u=>u.id===id); if(!u) return;
+      const fields=[
+        {label:'Prénom',val:u.prenom},{label:'Nom',val:u.nom},
+        {label:'Email',val:u.email},{label:'Téléphone',val:u.telephone||'-'},
+        {label:'Pays',val:u.pays||'-'},{label:'Date de naissance',val:u.date_naissance?new Date(u.date_naissance).toLocaleDateString('fr'):'-'},
+        {label:'Niveau',val:u.niveau||'-'},{label:'Catégorie',val:catLabels[u.categorie]||'-'},
+        {label:'Filière / Matière',val:u.filiere||u.matiere||'-'},{label:'Score',val:u.score||0},
+        {label:'Victoires',val:u.victoires||0},{label:'Challenges',val:u.challenges||0},
+        {label:'Statut',val:u.blocked?'🚫 Bloqué':'✅ Actif'},
+        {label:'Inscrit le',val:u.created_at?new Date(u.created_at).toLocaleString('fr'):'-'},
+        {label:'ID utilisateur',val:u.id},{label:'Mot de passe (hashé)',val:(u.password_hash||'').substring(0,20)+'...'},
+      ];
+      document.getElementById('viewContent').innerHTML=fields.map(f=>`
+        <div class="info-box">
+          <div class="info-box-label">${f.label}</div>
+          <div class="info-box-val">${f.val}</div>
+        </div>`).join('');
+      openModal('modalView');
+    }
+
+    function editUser(id){
+      const u=allUsers.find(u=>u.id===id); if(!u) return;
+      document.getElementById('editId').value=u.id;
+      document.getElementById('editPrenom').value=u.prenom||'';
+      document.getElementById('editNom').value=u.nom||'';
+      document.getElementById('editEmail').value=u.email||'';
+      document.getElementById('editTel').value=u.telephone||'';
+      document.getElementById('editPays').value=u.pays||'';
+      document.getElementById('editNiveau').value=u.niveau||'';
+      document.getElementById('editScore').value=u.score||0;
+      document.getElementById('editVictoires').value=u.victoires||0;
+      document.getElementById('editCategorie').value=u.categorie||'autre';
+      document.getElementById('editPass').value='';
+      openModal('modalEdit');
+    }
+
+    async function saveEdit(){
+      const id=document.getElementById('editId').value;
+      const updates={
+        prenom:document.getElementById('editPrenom').value.trim(),
+        nom:document.getElementById('editNom').value.trim(),
+        email:document.getElementById('editEmail').value.trim(),
+        telephone:document.getElementById('editTel').value.trim(),
+        pays:document.getElementById('editPays').value.trim(),
+        niveau:document.getElementById('editNiveau').value.trim(),
+        score:parseInt(document.getElementById('editScore').value)||0,
+        victoires:parseInt(document.getElementById('editVictoires').value)||0,
+        categorie:document.getElementById('editCategorie').value,
+      };
+      const newPass=document.getElementById('editPass').value;
+      if(newPass){ updates.password_hash=await hashPassword(newPass); }
+      try{
+        await supa('users?id=eq.'+id,{method:'PATCH',body:JSON.stringify(updates)});
+        const idx=allUsers.findIndex(u=>u.id===id);
+        if(idx>-1) allUsers[idx]={...allUsers[idx],...updates};
+        renderUsers(allUsers);
+        closeModal('modalEdit');
+        showToast('✅ Utilisateur modifié avec succès !');
+      } catch(e){ showToast('❌ Erreur: '+e.message,false); }
+    }
+
+    async function toggleBlock(id,block){
+      try{
+        await supa('users?id=eq.'+id,{method:'PATCH',body:JSON.stringify({blocked:block})});
+        const idx=allUsers.findIndex(u=>u.id===id);
+        if(idx>-1) allUsers[idx].blocked=block;
+        renderUsers(allUsers);
+        document.getElementById('kpiBlocked').textContent=allUsers.filter(u=>u.blocked).length;
+        showToast(block?'🚫 Utilisateur bloqué.':'✅ Utilisateur débloqué.');
+      } catch(e){ showToast('❌ Erreur: '+e.message,false); }
+    }
+
+    function openDelete(id){ document.getElementById('deleteId').value=id; openModal('modalDelete'); }
+
+    async function confirmDelete(){
+      const id=document.getElementById('deleteId').value;
+      try{
+        await supa('users?id=eq.'+id,{method:'DELETE',headers:{'Prefer':''}});
+        allUsers=allUsers.filter(u=>u.id!==id);
+        renderUsers(allUsers);
+        document.getElementById('kpiUsers').textContent=allUsers.length;
+        document.getElementById('kpiBlocked').textContent=allUsers.filter(u=>u.blocked).length;
+        closeModal('modalDelete');
+        showToast('✅ Utilisateur supprimé.');
+      } catch(e){ showToast('❌ Erreur: '+e.message,false); }
+    }
+
+    async function deleteChallenge(id){
+      if(!confirm('Supprimer ce challenge ?')) return;
+      try{
+        await supa('challenges?id=eq.'+id,{method:'DELETE',headers:{'Prefer':''}});
+        allChallenges=allChallenges.filter(c=>c.id!==id);
+        renderChallenges(allChallenges);
+        document.getElementById('kpiChallenges').textContent=allChallenges.length;
+        showToast('✅ Challenge supprimé.');
+      } catch(e){ showToast('❌ Erreur: '+e.message,false); }
+    }
+
+    function filterUsers(q){ renderUsers(allUsers.filter(u=>`${u.prenom} ${u.nom} ${u.email} ${u.pays||''}`.toLowerCase().includes(q.toLowerCase()))); }
+    function filterChallenges(q){ renderChallenges(allChallenges.filter(c=>`${c.title} ${c.from_name||''} ${c.to_email||''}`.toLowerCase().includes(q.toLowerCase()))); }
+
+    function switchTab(tab,el){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('tab-'+tab).classList.add('active');
+    }
+
+    function openModal(id){ document.getElementById(id).classList.add('show'); document.body.style.overflow='hidden'; }
+    function closeModal(id){ document.getElementById(id).classList.remove('show'); document.body.style.overflow=''; }
+
+    function showToast(msg,ok=true){
+      const t=document.getElementById('toast');
+      t.textContent=msg; t.className='toast '+(ok?'ok':'err');
+      t.style.display='block'; setTimeout(()=>t.style.display='none',3000);
+    }
+
+    // Fermer modal en cliquant dehors
+    document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+      overlay.addEventListener('click',e=>{ if(e.target===overlay) closeModal(overlay.id); });
+    });
+
+    loadDashboard();
+    setInterval(loadDashboard,30000);
+  </script>
+</body>
+</html>
