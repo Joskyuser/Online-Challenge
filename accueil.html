@@ -202,6 +202,34 @@
     /* EMPTY */
     .empty-state{color:var(--muted);font-size:13px;text-align:center;padding:20px}
 
+
+    /* NOTIFICATIONS */
+    .notif-wrap{position:relative}
+    .bell-btn{width:38px;height:38px;background:transparent;border:1px solid var(--border);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .2s;position:relative;flex-shrink:0}
+    .bell-btn:hover{border-color:var(--accent);background:rgba(240,201,58,.08)}
+    .bell-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:white;border-radius:99px;font-size:10px;font-weight:800;min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg);display:none}
+    .notif-panel{position:absolute;top:48px;right:0;width:320px;background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:300;display:none;overflow:hidden;animation:fadeUp .2s ease}
+    .notif-panel.open{display:block}
+    .notif-panel-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .notif-panel-title{font-family:"Syne",sans-serif;font-size:15px;font-weight:700}
+    .notif-mark-all{font-size:11px;color:var(--accent2);cursor:pointer;background:none;border:none;font-family:"Inter",sans-serif}
+    .notif-mark-all:hover{text-decoration:underline}
+    .notif-list{max-height:380px;overflow-y:auto}
+    .notif-item{padding:12px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:background .2s;border-bottom:1px solid var(--border);position:relative}
+    .notif-item:last-child{border-bottom:none}
+    .notif-item:hover{background:#131829}
+    .notif-item.unread{background:rgba(58,142,240,.04)}
+    .notif-item.unread::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent2);border-radius:0 3px 3px 0}
+    .notif-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .ni-msg{background:rgba(58,142,240,.15)}
+    .ni-challenge{background:rgba(240,201,58,.15)}
+    .ni-ami{background:rgba(74,222,128,.15)}
+    .ni-groupe{background:rgba(224,58,142,.15)}
+    .notif-content{flex:1;min-width:0}
+    .notif-text{font-size:13px;line-height:1.4;margin-bottom:3px}
+    .notif-text strong{color:var(--text);font-weight:600}
+    .notif-time{font-size:11px;color:var(--muted)}
+    .notif-empty{text-align:center;padding:30px 16px;color:var(--muted);font-size:13px}
     /* TOAST */
     .toast{position:fixed;bottom:20px;right:20px;border-radius:10px;padding:12px 20px;font-size:13px;z-index:999;display:none;animation:slideIn .3s ease;max-width:calc(100vw - 40px)}
     .toast.ok{background:#0a2a0e;border:1px solid var(--green);color:var(--green)}
@@ -243,6 +271,21 @@
       <button class="nav-tab" onclick="showPage('social',this)">💬 Social <span class="notif-dot" id="notifDot" style="display:none"></span></button>
     </div>
     <div class="nav-right">
+      <div class="notif-wrap">
+        <button class="bell-btn" onclick="toggleNotifPanel()" title="Notifications">
+          🔔
+          <div class="bell-badge" id="bellBadge"></div>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-panel-header">
+            <div class="notif-panel-title">🔔 Notifications</div>
+            <button class="notif-mark-all" onclick="markAllRead()">Tout marquer lu</button>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-empty">Aucune notification</div>
+          </div>
+        </div>
+      </div>
       <div class="nav-avatar" id="navAvatar" onclick="openPhotoModal()" title="Changer photo de profil"></div>
       <span class="nav-name" id="navName"></span>
       <button class="logout-btn" onclick="logout()">Déconnexion</button>
@@ -818,6 +861,182 @@
         await loadMessages();
       } catch(e){showToast("❌ Erreur: "+e.message,false);}
     }
+
+
+    // ===== NOTIFICATIONS =====
+    let notifications = [];
+    let notifOpen = false;
+
+    function toggleNotifPanel(){
+      notifOpen = !notifOpen;
+      document.getElementById("notifPanel").classList.toggle("open", notifOpen);
+      if(notifOpen) loadNotifications();
+    }
+
+    // Fermer en cliquant ailleurs
+    document.addEventListener("click", e => {
+      if(!e.target.closest(".notif-wrap") && notifOpen){
+        notifOpen = false;
+        document.getElementById("notifPanel").classList.remove("open");
+      }
+    });
+
+    function timeAgo(dateStr){
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const min = Math.floor(diff/60000);
+      if(min < 1) return "À l'instant";
+      if(min < 60) return min+"min";
+      const h = Math.floor(min/60);
+      if(h < 24) return h+"h";
+      return Math.floor(h/24)+"j";
+    }
+
+    async function loadNotifications(){
+      try{
+        // Charger messages non lus (privés)
+        const msgs = await supa("messages?to_uid=eq."+me.id+"&lu=eq.false&order=created_at.desc&limit=20");
+        
+        // Charger challenges en attente envoyés à moi
+        const challenges = await supa("challenges?to_email=eq."+encodeURIComponent(me.email)+"&status=eq.pending&order=created_at.desc&limit=10");
+        
+        // Charger demandes d'amis
+        const demandes = await supa("amis?ami_id=eq."+me.id+"&statut=eq.pending&order=created_at.desc&limit=10");
+        
+        // Charger messages de groupe non lus
+        let groupeMsgs = [];
+        if(mesGroupes && mesGroupes.length){
+          for(const g of mesGroupes.slice(0,5)){
+            const gm = await supa("messages?groupe_id=eq."+g.id+"&lu=eq.false&order=created_at.desc&limit=5");
+            groupeMsgs.push(...gm.filter(m=>m.from_uid!==me.id).map(m=>({...m, _groupeNom:g.nom})));
+          }
+        }
+
+        // Construire la liste
+        notifications = [];
+
+        msgs.forEach(m => notifications.push({
+          id: "msg_"+m.id,
+          type: "message",
+          icon: "💬", iconCls: "ni-msg",
+          text: "<strong>"+m.from_name+"</strong> vous a envoyé un message",
+          time: m.created_at,
+          action: () => { showPage("social", document.querySelector('.nav-tab:nth-child(2)')); setTimeout(()=>openChat("ami", m.from_uid, m.from_name, m.from_photo||""),300); },
+          raw_id: m.id, table: "messages"
+        }));
+
+        challenges.forEach(c => notifications.push({
+          id: "ch_"+c.id,
+          type: "challenge",
+          icon: "⚔️", iconCls: "ni-challenge",
+          text: "<strong>"+c.from_name+"</strong> vous invite à participer au défi <strong>""+c.title+""</strong>",
+          time: c.created_at,
+          action: () => { showPage("home", document.querySelector('.nav-tab:first-child')); },
+          raw_id: null, table: null
+        }));
+
+        demandes.forEach(async d => {
+          const users = await supa("users?id=eq."+d.user_id+"&select=prenom,nom");
+          const nom = users.length ? users[0].prenom+" "+users[0].nom : "Quelqu'un";
+          notifications.push({
+            id: "ami_"+d.id,
+            type: "ami",
+            icon: "👥", iconCls: "ni-ami",
+            text: "<strong>"+nom+"</strong> vous a envoyé une demande d'ami",
+            time: d.created_at,
+            action: () => { showPage("social", document.querySelector('.nav-tab:nth-child(2)')); },
+            raw_id: null, table: null
+          });
+          renderNotifications();
+        });
+
+        groupeMsgs.forEach(m => notifications.push({
+          id: "gmsg_"+m.id,
+          type: "groupe",
+          icon: "👨‍👩‍👧", iconCls: "ni-groupe",
+          text: "<strong>"+m.from_name+"</strong> a envoyé un message dans <strong>"+m._groupeNom+"</strong>",
+          time: m.created_at,
+          action: () => { showPage("social", document.querySelector('.nav-tab:nth-child(2)')); setTimeout(()=>openChat("groupe", m.groupe_id, m._groupeNom, ""),300); },
+          raw_id: m.id, table: "messages"
+        }));
+
+        // Trier par date
+        notifications.sort((a,b) => new Date(b.time) - new Date(a.time));
+        renderNotifications();
+      } catch(e){ console.error(e); }
+    }
+
+    function renderNotifications(){
+      const list = document.getElementById("notifList");
+      const badge = document.getElementById("bellBadge");
+      const count = notifications.length;
+
+      if(count > 0){
+        badge.textContent = count > 99 ? "99+" : count;
+        badge.style.display = "flex";
+      } else {
+        badge.style.display = "none";
+      }
+
+      if(!notifications.length){
+        list.innerHTML = '<div class="notif-empty">🎉 Aucune nouvelle notification</div>';
+        return;
+      }
+
+      list.innerHTML = notifications.map((n,i) => `
+        <div class="notif-item unread" onclick="handleNotif(${i})">
+          <div class="notif-icon ${n.iconCls}">${n.icon}</div>
+          <div class="notif-content">
+            <div class="notif-text">${n.text}</div>
+            <div class="notif-time">${timeAgo(n.time)}</div>
+          </div>
+        </div>`).join("");
+    }
+
+    async function handleNotif(index){
+      const n = notifications[index];
+      if(!n) return;
+      // Marquer comme lu si c'est un message
+      if(n.table === "messages" && n.raw_id){
+        await supa("messages?id=eq."+n.raw_id, {method:"PATCH", body:JSON.stringify({lu:true})});
+      }
+      notifications.splice(index, 1);
+      renderNotifications();
+      notifOpen = false;
+      document.getElementById("notifPanel").classList.remove("open");
+      if(n.action) n.action();
+    }
+
+    async function markAllRead(){
+      try{
+        await supa("messages?to_uid=eq."+me.id+"&lu=eq.false", {method:"PATCH", body:JSON.stringify({lu:true})});
+        notifications = [];
+        renderNotifications();
+        showToast("✅ Toutes les notifications marquées comme lues.");
+      } catch(e){ showToast("❌ Erreur: "+e.message, false); }
+    }
+
+    // Vérifier les nouvelles notifs toutes les 10 secondes
+    async function checkNotifCount(){
+      try{
+        const [msgs, challenges, demandes] = await Promise.all([
+          supa("messages?to_uid=eq."+me.id+"&lu=eq.false&select=id"),
+          supa("challenges?to_email=eq."+encodeURIComponent(me.email)+"&status=eq.pending&select=id"),
+          supa("amis?ami_id=eq."+me.id+"&statut=eq.pending&select=id")
+        ]);
+        let total = msgs.length + challenges.length + demandes.length;
+        const badge = document.getElementById("bellBadge");
+        if(total > 0){
+          badge.textContent = total > 99 ? "99+" : total;
+          badge.style.display = "flex";
+        } else {
+          badge.style.display = "none";
+        }
+      } catch(e){}
+    }
+
+    // Vérifier au démarrage et toutes les 10s
+    checkNotifCount();
+    setInterval(checkNotifCount, 10000);
 
     // INIT
     loadHome();
