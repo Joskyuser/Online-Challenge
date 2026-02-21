@@ -474,8 +474,7 @@
 
     // AUTH
     let me=JSON.parse(sessionStorage.getItem("ciq_user")||"null");
-    if(!me||me.is_admin){window.location.href="index.html";}
-    else {
+    if(!me||me.is_admin){ window.location.href="index.html"; }
 
     // NAV INIT
     function renderAvatar(el, user){
@@ -1088,7 +1087,6 @@
     refreshMe();
     loadHome();
     setInterval(loadHome,15000);
-    } // fin else AUTH
   </script>
 </body>
 </html>
