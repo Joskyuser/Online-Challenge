@@ -664,11 +664,22 @@
 
         // Liste amis
         document.getElementById("amisCount").textContent=mesAmis.length;
-        document.getElementById("amisList").innerHTML=mesAmis.length?mesAmis.map(u=>`
-          <div class="sidebar-item" onclick="openChat('ami','${u.id}','${u.prenom} ${u.nom}','${u.photo||""}')">
-            <div class="si-avatar">${u.photo?'<img src="'+u.photo+'"/>':((u.prenom||"?")[0]+(u.nom||"?")[0]).toUpperCase()}</div>
-            <div class="si-info"><div class="si-name">${u.prenom} ${u.nom}</div><div class="si-last">${catLabels[u.categorie]||""}</div></div>
-          </div>`).join(""):`<div class="empty-state" style="padding:14px">Aucun ami encore.</div>`;
+        if(mesAmis.length){
+          document.getElementById("amisList").innerHTML = mesAmis.map((u,i) =>
+            `<div class="sidebar-item" data-ami-index="${i}">
+              <div class="si-avatar">${u.photo?`<img src="${u.photo}"/>`:(((u.prenom||"?")[0]+(u.nom||"?")[0]).toUpperCase())}</div>
+              <div class="si-info"><div class="si-name">${u.prenom} ${u.nom}</div><div class="si-last">${catLabels[u.categorie]||""}</div></div>
+            </div>`
+          ).join("");
+          // Ajouter les événements click après le rendu
+          document.querySelectorAll("#amisList .sidebar-item[data-ami-index]").forEach(el => {
+            const idx = parseInt(el.dataset.amiIndex);
+            const u = mesAmis[idx];
+            el.addEventListener("click", () => openChat("ami", u.id, u.prenom+" "+u.nom, u.photo||""));
+          });
+        } else {
+          document.getElementById("amisList").innerHTML = `<div class="empty-state" style="padding:14px">Aucun ami encore.</div>`;
+        }
 
         // Groupes
         mesGroupes=groupes.filter(g=>{
@@ -676,12 +687,27 @@
           return g.admin_id===me.id||membres.includes(me.id);
         });
         document.getElementById("groupesCount").textContent=mesGroupes.length;
-        document.getElementById("groupesList").innerHTML=mesGroupes.map(g=>`
-          <div class="sidebar-item" onclick="openChat('groupe','${g.id}','${g.nom}','')">
-            <div class="si-avatar" style="background:linear-gradient(135deg,#e03a8e,var(--accent2))">👥</div>
-            <div class="si-info"><div class="si-name">${g.nom}</div><div class="si-last">${(Array.isArray(g.membres)?g.membres.length:0)+1} membres</div></div>
-            ${g.admin_id===me.id?`<button class="si-act-btn btn-reject" onclick="event.stopPropagation();openGroupMembers('${g.id}')" title="Gérer membres">⚙️</button>`:""}
-          </div>`).join("")||`<div class="empty-state" style="padding:14px">Aucun groupe.</div>`;
+        if(mesGroupes.length){
+          document.getElementById("groupesList").innerHTML = mesGroupes.map((g,i) =>
+            `<div class="sidebar-item" data-groupe-index="${i}">
+              <div class="si-avatar" style="background:linear-gradient(135deg,#e03a8e,var(--accent2))">👥</div>
+              <div class="si-info"><div class="si-name">${g.nom}</div><div class="si-last">${(Array.isArray(g.membres)?g.membres.length:0)+1} membres</div></div>
+              ${g.admin_id===me.id?`<button class="si-act-btn btn-reject" data-groupe-id="${g.id}" title="Gérer membres">⚙️</button>`:""}
+            </div>`
+          ).join("");
+          // Ajouter les événements click après le rendu
+          document.querySelectorAll("#groupesList .sidebar-item[data-groupe-index]").forEach(el => {
+            const idx = parseInt(el.dataset.groupeIndex);
+            const g = mesGroupes[idx];
+            el.addEventListener("click", (e) => {
+              if(!e.target.closest(".si-act-btn")) openChat("groupe", g.id, g.nom, "");
+            });
+            const settingsBtn = el.querySelector(".si-act-btn[data-groupe-id]");
+            if(settingsBtn) settingsBtn.addEventListener("click", (e) => { e.stopPropagation(); openGroupMembers(g.id); });
+          });
+        } else {
+          document.getElementById("groupesList").innerHTML = `<div class="empty-state" style="padding:14px">Aucun groupe.</div>`;
+        }
 
       } catch(e){console.error(e);}
     }
