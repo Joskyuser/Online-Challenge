@@ -194,10 +194,10 @@
 
     // AUTH CHECK
     const me = JSON.parse(sessionStorage.getItem('ciq_user')||'null');
-    if (!me) { window.location.href='index.html'; }
+    if (!me || me.is_admin) { window.location.href='index.html'; throw new Error('redirect'); }
 
     // INIT NAV
-    const init = (me.prenom[0]+me.nom[0]).toUpperCase();
+    const init = ((me.prenom||'?')[0]+(me.nom||'?')[0]).toUpperCase();
     document.getElementById('navAvatar').textContent = init;
     document.getElementById('navName').textContent = me.prenom+' '+me.nom;
     document.getElementById('navCat').textContent = catLabels[me.categorie]||'';
@@ -328,7 +328,7 @@
         await supa(`users?id=eq.${me.id}`,{method:'PATCH',body:JSON.stringify({challenges:(me.challenges||0)+1})});
         me.challenges=(me.challenges||0)+1;
         sessionStorage.setItem('ciq_user',JSON.stringify(me));
-        document.getElementById('myC hallenges').textContent=me.challenges;
+        document.getElementById('myChallenges').textContent=me.challenges;
         document.getElementById('advEmail').value='';
         document.getElementById('chTitle').value='';
         questions=[]; renderQuestions();
