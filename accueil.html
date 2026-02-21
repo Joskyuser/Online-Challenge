@@ -311,6 +311,16 @@
       </div>
     </div>
 
+    <!-- BARRE DE RECHERCHE -->
+    <div class="section-card" style="margin-bottom:18px">
+      <div class="section-title">🔍 Rechercher un utilisateur</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInputHome" placeholder="Tapez un nom, prénom ou email..." oninput="searchUsersHome(this.value)"/>
+        <div class="search-results" id="searchResultsHome"></div>
+      </div>
+    </div>
+
     <div class="grid-2">
       <div class="section-card">
         <div class="section-title">⚔️ Lancer un challenge</div>
@@ -713,6 +723,53 @@
     }
 
     // RECHERCHE
+    // Recherche dans page accueil
+    let searchTimeoutHome=null;
+    function searchUsersHome(val){
+      clearTimeout(searchTimeoutHome);
+      const results=document.getElementById("searchResultsHome");
+      if(!val||val.length<2){results.style.display="none";return;}
+      searchTimeoutHome=setTimeout(async()=>{
+        if(!allUsers.length){
+          const users = await supa("users?select=*&order=prenom.asc");
+          allUsers = users.filter(u=>u.id!==me.id);
+        }
+        const found=allUsers.filter(u=>`${u.prenom} ${u.nom} ${u.email}`.toLowerCase().includes(val.toLowerCase())).slice(0,6);
+        if(!found.length){results.style.display="none";return;}
+        const amis=await supa("amis?select=*");
+        results.innerHTML=found.map(u=>{
+          const rel=amis.find(a=>(a.user_id===me.id&&a.ami_id===u.id)||(a.user_id===u.id&&a.ami_id===me.id));
+          let btn=`<button class="sr-btn add" onclick="envoyerAmiHome('${u.id}',this)">+ Ami</button>`;
+          if(rel&&rel.statut==="pending") btn=`<span class="sr-btn pending">En attente</span>`;
+          if(rel&&rel.statut==="accepted") btn=`<span class="sr-btn ami">✅ Ami</span>`;
+          return `<div class="search-result-item">
+            <div class="sr-avatar">${u.photo?`<img src="${u.photo}"/>`:(((u.prenom||"?")[0]+(u.nom||"?")[0]).toUpperCase())}</div>
+            <div class="sr-info"><div class="sr-name">${u.prenom} ${u.nom}</div><div class="sr-sub">${catLabels[u.categorie]||""} · ${u.pays||""}</div></div>
+            ${btn}
+          </div>`;
+        }).join("");
+        results.style.display="block";
+      },300);
+    }
+
+    async function envoyerAmiHome(amiId, btn){
+      try{
+        await supa("amis",{method:"POST",body:JSON.stringify({user_id:me.id,ami_id:amiId,statut:"pending"})});
+        btn.textContent="En attente";
+        btn.className="sr-btn pending";
+        btn.disabled=true;
+        showToast("✅ Demande d'ami envoyée !");
+      } catch(e){showToast("❌ Erreur: "+e.message,false);}
+    }
+
+    // Fermer résultats recherche accueil en cliquant ailleurs
+    document.addEventListener("click",e=>{
+      if(!e.target.closest(".search-wrap")) {
+        const r = document.getElementById("searchResultsHome");
+        if(r) r.style.display="none";
+      }
+    });
+
     let searchTimeout=null;
     function searchUsers(val){
       clearTimeout(searchTimeout);
