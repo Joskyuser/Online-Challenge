@@ -929,7 +929,7 @@
           id: "ch_"+c.id,
           type: "challenge",
           icon: "⚔️", iconCls: "ni-challenge",
-          text: "<strong>"+c.from_name+"</strong> vous invite à participer au défi <strong>""+c.title+""</strong>",
+          text: "<strong>"+c.from_name+"</strong> vous invite à participer au défi : <strong>"+c.title+"</strong>",
           time: c.created_at,
           action: () => { showPage("home", document.querySelector('.nav-tab:first-child')); },
           raw_id: null, table: null
@@ -1062,6 +1062,7 @@
     refreshMe();
     loadHome();
     setInterval(loadHome,15000);
+    } // fin else AUTH
   </script>
 </body>
 </html>
