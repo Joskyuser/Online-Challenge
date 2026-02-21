@@ -473,8 +473,9 @@
     }
 
     // AUTH
-    const me=JSON.parse(sessionStorage.getItem("ciq_user")||"null");
-    if(!me||me.is_admin){window.location.href="index.html";throw new Error("redirect");}
+    let me=JSON.parse(sessionStorage.getItem("ciq_user")||"null");
+    if(!me||me.is_admin){window.location.href="index.html";}
+    else {
 
     // NAV INIT
     function renderAvatar(el, user){
@@ -1038,7 +1039,27 @@
     checkNotifCount();
     setInterval(checkNotifCount, 10000);
 
+    // Rafraîchir les données utilisateur depuis Supabase au démarrage
+    async function refreshMe(){
+      try{
+        const users = await supa("users?id=eq."+me.id+"&select=*");
+        if(users.length){
+          Object.assign(me, users[0]);
+          sessionStorage.setItem("ciq_user", JSON.stringify(me));
+          document.getElementById("heroGreeting").textContent="Bonjour, "+me.prenom+" ⚡";
+          document.getElementById("heroCat").textContent=catLabels[me.categorie]||"";
+          document.getElementById("myScore").textContent=me.score||0;
+          document.getElementById("myVictoires").textContent=me.victoires||0;
+          document.getElementById("myChallenges").textContent=me.challenges||0;
+          renderAvatar(document.getElementById("navAvatar"), me);
+          renderAvatar(document.getElementById("heroAvatar"), me);
+          document.getElementById("navName").textContent=me.prenom+" "+me.nom;
+        }
+      } catch(e){ console.error("refreshMe:", e); }
+    }
+
     // INIT
+    refreshMe();
     loadHome();
     setInterval(loadHome,15000);
   </script>
