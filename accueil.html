@@ -624,11 +624,12 @@
 
     async function loadSocial(){
       try{
-        const [users,amis,groupes]=await Promise.all([
-          supa("users?select=*&order=prenom.asc"),
+        const [amis,groupes]=await Promise.all([
           supa("amis?select=*"),
           supa("groupes?select=*")
         ]);
+        // allUsers chargé uniquement à la recherche
+        const users = await supa("users?select=*&order=prenom.asc");
         allUsers=users.filter(u=>u.id!==me.id);
 
         // Amis acceptés
@@ -718,6 +719,11 @@
       const results=document.getElementById("searchResults");
       if(!val||val.length<2){results.style.display="none";return;}
       searchTimeout=setTimeout(async()=>{
+        // Charger les utilisateurs si pas encore fait
+        if(!allUsers.length){
+          const users = await supa("users?select=*&order=prenom.asc");
+          allUsers = users.filter(u=>u.id!==me.id);
+        }
         const found=allUsers.filter(u=>`${u.prenom} ${u.nom} ${u.email}`.toLowerCase().includes(val.toLowerCase())).slice(0,6);
         if(!found.length){results.style.display="none";return;}
         const amis=await supa("amis?select=*");
