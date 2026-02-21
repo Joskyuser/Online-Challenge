@@ -378,6 +378,18 @@
             <div class="sidebar-header-count" id="amisCount">0</div>
           </div>
           <div id="amisList"><div class="empty-state" style="padding:14px">Aucun ami encore.</div></div>
+
+          <!-- RECHERCHE & AJOUT D'AMIS -->
+          <div style="padding:10px 14px;border-top:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">➕ Ajouter un ami</div>
+            <div style="position:relative;margin-bottom:8px">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px">🔍</span>
+              <input type="text" id="addFriendSearch" placeholder="Rechercher..." oninput="filterAllUsers(this.value)"
+                style="width:100%;padding:8px 10px 8px 32px;background:#131829;border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;outline:none;font-family:Inter,sans-serif"
+                onfocus="showAllUsers()"/>
+            </div>
+            <div id="allUsersList" style="max-height:220px;overflow-y:auto;display:none"></div>
+          </div>
         </div>
 
         <!-- GROUPES -->
@@ -802,6 +814,82 @@
     // Fermer recherche en cliquant ailleurs
     document.addEventListener("click",e=>{
       if(!e.target.closest(".search-wrap")) document.getElementById("searchResults").style.display="none";
+    });
+
+    // Afficher tous les utilisateurs dans la section ajout ami
+    let allUsersLoaded = false;
+    let allAmisList = [];
+
+    async function showAllUsers(){
+      const container = document.getElementById("allUsersList");
+      container.style.display = "block";
+      if(allUsersLoaded){ renderAllUsers(allUsers, allAmisList); return; }
+      container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px">Chargement...</div>';
+      try{
+        const [users, amis] = await Promise.all([
+          supa("users?select=*&order=prenom.asc"),
+          supa("amis?select=*")
+        ]);
+        allUsers = users.filter(u => u.id !== me.id);
+        allAmisList = amis;
+        allUsersLoaded = true;
+        renderAllUsers(allUsers, allAmisList);
+      } catch(e){ console.error(e); }
+    }
+
+    function renderAllUsers(users, amis){
+      const container = document.getElementById("allUsersList");
+      if(!users.length){
+        container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted);font-size:12px">Aucun utilisateur trouvé.</div>';
+        return;
+      }
+      container.innerHTML = users.map((u,i) => {
+        const rel = amis.find(a=>(a.user_id===me.id&&a.ami_id===u.id)||(a.user_id===u.id&&a.ami_id===me.id));
+        let btnHtml = `<button onclick="envoyerAmiDirect('${u.id}',this)" style="padding:4px 10px;background:var(--accent2);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">+ Ami</button>`;
+        if(rel && rel.statut==="pending") btnHtml = `<span style="padding:4px 8px;background:rgba(107,114,128,.15);color:var(--muted);border-radius:6px;font-size:11px;font-weight:600">En attente</span>`;
+        if(rel && rel.statut==="accepted") btnHtml = `<span style="padding:4px 8px;background:rgba(74,222,128,.15);color:var(--green);border-radius:6px;font-size:11px;font-weight:600">✅ Ami</span>`;
+        return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)" data-user-index="${i}">
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:#080b14;flex-shrink:0;overflow:hidden">
+            ${u.photo ? `<img src="${u.photo}" style="width:100%;height:100%;object-fit:cover"/>` : ((u.prenom||"?")[0]+(u.nom||"?")[0]).toUpperCase()}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.prenom} ${u.nom}</div>
+            <div style="font-size:10px;color:var(--muted)">${catLabels[u.categorie]||""}</div>
+          </div>
+          ${btnHtml}
+        </div>`;
+      }).join("");
+    }
+
+    function filterAllUsers(val){
+      const container = document.getElementById("allUsersList");
+      container.style.display = "block";
+      if(!allUsersLoaded){ showAllUsers(); return; }
+      const filtered = val.length < 1
+        ? allUsers
+        : allUsers.filter(u => `${u.prenom} ${u.nom} ${u.email}`.toLowerCase().includes(val.toLowerCase()));
+      renderAllUsers(filtered, allAmisList);
+    }
+
+    async function envoyerAmiDirect(amiId, btn){
+      try{
+        await supa("amis",{method:"POST",body:JSON.stringify({user_id:me.id,ami_id:amiId,statut:"pending"})});
+        btn.textContent = "En attente";
+        btn.style.background = "rgba(107,114,128,.15)";
+        btn.style.color = "var(--muted)";
+        btn.disabled = true;
+        // Mettre à jour allAmisList localement
+        allAmisList.push({user_id:me.id, ami_id:amiId, statut:"pending"});
+        showToast("✅ Demande d'ami envoyée !");
+      } catch(e){ showToast("❌ "+e.message, false); }
+    }
+
+    // Fermer la liste en cliquant ailleurs
+    document.addEventListener("click", e => {
+      if(!e.target.closest("#allUsersList") && !e.target.closest("#addFriendSearch")){
+        const el = document.getElementById("allUsersList");
+        if(el) el.style.display = "none";
+      }
     });
 
     async function envoyerAmi(amiId){
